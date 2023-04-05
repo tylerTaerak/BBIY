@@ -137,6 +137,11 @@ namespace CS5410
             }
         }
 
+        private bool Is(IMapObj obj, string attr)
+        {
+            return true;
+        }
+
         private void rule(Word node1, Word node2, Word node3)
         {
             if (node1.IsNoun && node2.Text == "is")
