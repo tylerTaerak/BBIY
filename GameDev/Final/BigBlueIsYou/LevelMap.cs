@@ -62,6 +62,16 @@ namespace CS5410
                 set;
             }
         }
+        /**
+         * I want to implement a dictionary containing information
+         * for each object (including render stuff). This requires
+         * implementing the GetHashCode() and Equals() methods
+         * in my IMapObj objects. For the objects, I think I would
+         * like to link each constructed object with an id, and
+         * the Equals() method would use that for equality. This
+         * could also be used for implementing the GetHashCode()
+         * method as well, which could just return this id.
+         */
 
         private Dictionary<string, List<IMapObj>> m_objects;
         private Dictionary<string, List<string>> m_attributes;
