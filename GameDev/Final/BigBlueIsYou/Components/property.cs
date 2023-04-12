@@ -1,6 +1,6 @@
 namespace CS5410.Components
 {
-    public enum Properties
+    public enum Properties:int
     {
         You = 1, // this will control input
         Win = 2,
@@ -17,6 +17,11 @@ namespace CS5410.Components
         {
             get;
             set;
+        }
+
+        public Property()
+        {
+            GameProperties = 0;
         }
     }
 }
