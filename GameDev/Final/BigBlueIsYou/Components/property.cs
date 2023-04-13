@@ -7,7 +7,8 @@ namespace CS5410.Components
         Defeat = 4,
         Push = 8,
         Sink = 16,
-        Stop = 32
+        Stop = 32,
+        Immutable = 64
     }
 
     public class Property : Component
@@ -22,6 +23,28 @@ namespace CS5410.Components
         public Property()
         {
             GameProperties = 0;
+        }
+
+        public bool hasProperty(Properties p)
+        {
+            return ((GameProperties & (int)p) != 0);
+        }
+
+        public void Add(Properties p)
+        {
+            /* bitwise OR to turn bit on */
+            GameProperties |= (int) p;
+        }
+
+        public void Remove(Properties p)
+        {
+            /* bitwise XOR to turn bit off */
+            GameProperties ^= (int) p;
+        }
+
+        public void Clear()
+        {
+            GameProperties &= 0;
         }
     }
 }

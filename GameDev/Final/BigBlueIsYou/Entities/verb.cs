@@ -16,7 +16,10 @@ namespace CS5410.Entities
             var props = word.GetComponent<Components.Property>();
 
             // all words can be pushed
-            props.GameProperties |= (int)Components.Properties.Push;
+            props.Add(Components.Properties.Push);
+
+            // words' properties can't be changed
+            props.Add(Components.Properties.Immutable);
 
             return word;
         }
