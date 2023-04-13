@@ -20,7 +20,7 @@ namespace CS5410.Entities
             Id = m_nextId++;
         }
 
-        private bool ContainsComponent(Type type)
+        public bool ContainsComponent(Type type)
         {
             return components.ContainsKey(type) && components[type] != null;
         }
