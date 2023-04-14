@@ -18,6 +18,7 @@ namespace CS5410.Entities
         public Entity()
         {
             Id = m_nextId++;
+            components = new Dictionary<Type, Components.Component>();
         }
 
         public bool ContainsComponent(Type type)

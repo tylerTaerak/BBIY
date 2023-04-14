@@ -34,6 +34,8 @@ namespace CS5410.Systems
             m_propertyNames.Add("push", Components.Properties.Push);
             m_propertyNames.Add("sink", Components.Properties.Sink);
             m_propertyNames.Add("stop", Components.Properties.Stop);
+
+            m_rules = rules;
         }
 
         public override void update(GameTime gameTime)

@@ -14,6 +14,7 @@ namespace CS5410.Systems
                     typeof(Components.Position)
                   )
         {
+            m_keyPresses = new List<Keys>();
         }
 
         protected override bool IsInterested(Entities.Entity entity)
@@ -50,6 +51,8 @@ namespace CS5410.Systems
                     {
                         undo = true;
                     }
+
+                    moveEntities(k);
                 }
 
                 m_keyPresses.Clear();
@@ -62,7 +65,7 @@ namespace CS5410.Systems
             }
         }
 
-        private void moveEntity(Keys keypress)
+        private void moveEntities(Keys keypress)
         {
             foreach (Entities.Entity entity in m_entities.Values)
             {
@@ -75,20 +78,24 @@ namespace CS5410.Systems
                 switch (keypress)
                 {
                     case Keys.Up:
+                        pos.Facing = Components.Direction.Up;
                         y -= 1;
                         break;
                     case Keys.Down:
+                        pos.Facing = Components.Direction.Down;
                         y += 1;
                         break;
                     case Keys.Left:
+                        pos.Facing = Components.Direction.Left;
                         x -= 1;
                         break;
                     case Keys.Right:
+                        pos.Facing = Components.Direction.Right;
                         x += 1;
                         break;
                 }
 
-                pos.CurrentPosition = (x, y);
+                entity.GetComponent<Components.Position>().CurrentPosition = (x, y);
             }
         }
     }

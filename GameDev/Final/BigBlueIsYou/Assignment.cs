@@ -9,16 +9,22 @@ namespace CS5410
         private GraphicsDeviceManager m_graphics;
         private SpriteBatch m_spriteBatch;
 
+        States.GameState m_game;
+
         public Assignment()
         {
             m_graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+
         }
 
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            //
+
+            m_game = new States.GameState(0, States.GameStateType.Level1);
 
             base.Initialize();
         }
@@ -26,6 +32,8 @@ namespace CS5410
         protected override void LoadContent()
         {
             m_spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            m_game.loadContent(this.Content);
 
             // TODO: use this.Content to load your game content here
         }
