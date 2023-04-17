@@ -10,6 +10,8 @@ namespace CS5410.States
 
         public void loadContent(ContentManager content);
 
+        public void reset(GameTime gameTime);
+
         public GameStateType processInput(GameTime gameTime);
 
         public void update(GameTime gameTime);

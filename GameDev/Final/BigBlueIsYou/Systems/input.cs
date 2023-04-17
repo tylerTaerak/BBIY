@@ -17,24 +17,6 @@ namespace CS5410.Systems
             m_keyPresses = new List<Keys>();
         }
 
-        protected override bool IsInterested(Entities.Entity entity)
-        {
-            if (!base.IsInterested(entity))
-            {
-                return false;
-            }
-
-            var properties = entity.GetComponent<Components.Property>();
-
-            // we only want components with the property "YOU"
-            if (!properties.hasProperty(Components.Properties.You))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         public override void update(GameTime gameTime)
         {
             List<Keys> keysPressed = new List<Keys>();
@@ -71,6 +53,15 @@ namespace CS5410.Systems
             {
                 var pos = entity.GetComponent<Components.Position>();
                 var (x, y) = pos.CurrentPosition;
+
+                // I was going to override IsInterested, but since 'YOU'
+                // can change, it would probably be best to just do a check
+                // for 'YOU' here
+                var prop = entity.GetComponent<Components.Property>();
+                if (!prop.hasProperty(Components.Properties.You))
+                {
+                    continue;
+                }
 
                 //
                 // NOTE: Keys are user-configurable, so make sure to implement that here
