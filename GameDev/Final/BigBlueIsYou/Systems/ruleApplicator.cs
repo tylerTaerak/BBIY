@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using System;
 
 namespace CS5410.Systems
 {
@@ -13,7 +14,7 @@ namespace CS5410.Systems
         public RuleApplicatorSystem(RulesSystem rules)
             : base(
                     typeof(Components.Noun),
-                    typeof(Components.Properties)
+                    typeof(Components.Property)
                   )
         {
             m_objectNames = new Dictionary<string, Components.Objects>();
@@ -45,10 +46,8 @@ namespace CS5410.Systems
             foreach (Entities.Entity entity in m_entities.Values)
             {
                 var comp = entity.GetComponent<Components.Property>();
-                if (!comp.hasProperty(Components.Properties.Immutable))
-                {
-                    comp.Clear();
-                }
+
+                comp.Clear();
                 foreach (Rule rule in m_rules.Rules)
                 {
                    /* check to make sure the subject is a noun */
@@ -62,6 +61,7 @@ namespace CS5410.Systems
                    {
                        continue;
                    }
+
 
 
                    // apply rule

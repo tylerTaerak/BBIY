@@ -31,10 +31,17 @@ namespace CS5410.Systems
         {
             var entPos = entity.GetComponent<Components.Position>();
             var entProp = entity.GetComponent<Components.Property>();
+
             foreach (var other in m_entities.Values)
             {
-                var otherPos = entity.GetComponent<Components.Position>();
-                var otherProp = entity.GetComponent<Components.Property>();
+                var otherPos = other.GetComponent<Components.Position>();
+                var otherProp = other.GetComponent<Components.Property>();
+
+                // make sure that this entity has properties
+                if ((int)entProp.GameProperties == 0)
+                {
+                    continue;
+                }
 
                 if (otherPos.CurrentPosition == entPos.CurrentPosition && other.Id != entity.Id)
                 {
@@ -63,9 +70,14 @@ namespace CS5410.Systems
                                 otherPos.Facing = Components.Direction.Right;
                                 x += 1;
                                 break;
+                            default:
+                                continue;
                         }
 
+                        otherPos.CurrentPosition = (x, y);
+
                         collide(other);
+                        entPos.Facing = Components.Direction.Stopped;
                     }
                     if (otherProp.hasProperty(Components.Properties.Stop))
                     {
@@ -88,11 +100,17 @@ namespace CS5410.Systems
                                 x += 1;
                                 break;
                             case Components.Direction.Right:
+                                entPos.Facing = Components.Direction.Left;
                                 x -= 1;
                                 break;
+                            default:
+                                continue;
                         }
 
+                        entPos.CurrentPosition = (x, y);
+
                         collide(entity);
+                        entPos.Facing = Components.Direction.Stopped;
                     }
                     if (otherProp.hasProperty(Components.Properties.Win))
                     {

@@ -26,6 +26,7 @@ namespace CS5410
         protected override void Initialize()
         {
             /* Set Graphics Settings */
+            // something's not working quite right here... Maybe it's just Hyprland though
             m_graphics.PreferredBackBufferWidth = 1920;
             m_graphics.PreferredBackBufferHeight = 1080;
             m_graphics.ApplyChanges();
@@ -40,8 +41,7 @@ namespace CS5410
             m_states.Add(States.GameStateType.Level3, new States.GameState(3, States.GameStateType.Level3));
             m_states.Add(States.GameStateType.Level4, new States.GameState(4, States.GameStateType.Level4));
             m_states.Add(States.GameStateType.Level5, new States.GameState(5, States.GameStateType.Level5));
-            //m_states.Add(States.GameStateType.Controls, new State
-            m_states.Add(States.GameStateType.Quit, null);
+            m_states.Add(States.GameStateType.Controls, new States.ControlsState());
 
             foreach (var i in m_states.Values)
             {

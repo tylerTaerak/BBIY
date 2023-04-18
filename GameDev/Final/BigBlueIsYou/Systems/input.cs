@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
+using System;
 
 namespace CS5410.Systems
 {
@@ -37,14 +38,15 @@ namespace CS5410.Systems
                     moveEntities(k);
                 }
 
-                m_keyPresses.Clear();
-                m_keyPresses.AddRange(keysPressed);
 
                 if (undo)
                 {
                     // undo a move
                 }
             }
+
+            m_keyPresses.Clear();
+            m_keyPresses.AddRange(keysPressed);
         }
 
         private void moveEntities(Keys keypress)

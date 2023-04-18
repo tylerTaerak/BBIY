@@ -7,8 +7,7 @@ namespace CS5410.Components
         Defeat = 4,
         Push = 8,
         Sink = 16,
-        Stop = 32,
-        Immutable = 64
+        Stop = 32
     }
 
     public class Property : Component

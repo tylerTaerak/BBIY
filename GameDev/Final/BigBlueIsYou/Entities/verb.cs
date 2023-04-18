@@ -18,9 +18,6 @@ namespace CS5410.Entities
             // all words can be pushed
             props.Add(Components.Properties.Push);
 
-            // words' properties can't be changed
-            props.Add(Components.Properties.Immutable);
-
             return word;
         }
     }

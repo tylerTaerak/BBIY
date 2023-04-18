@@ -14,6 +14,7 @@ namespace CS5410.States
         private Systems.RuleApplicatorSystem m_apply;
         private Systems.InputSystem m_input;
         private Systems.CollisionSystem m_collision;
+        private Systems.RenderAnimatedSystem m_renderSprites;
 
         public GameState(int levelIndex, GameStateType levelId)
         {
@@ -23,12 +24,14 @@ namespace CS5410.States
 
         public void initialize(GraphicsDevice graphicsDevice, GraphicsDeviceManager graphics)
         {
-        }
+            m_rules = new Systems.RulesSystem();
+            m_apply = new Systems.RuleApplicatorSystem(m_rules);
+            m_input = new Systems.InputSystem();
+            m_collision = new Systems.CollisionSystem();
+            m_renderSprites = new Systems.RenderAnimatedSystem();
 
-        public void loadContent(ContentManager content)
-        {
             // load level at level index
-            var (title, map) = Load.loadLevels(content, m_levelIndex);
+            var (title, map) = Load.loadLevels(m_levelIndex);
 
             for (var j=0; j<map.Length/2; j++)
             {
@@ -38,6 +41,12 @@ namespace CS5410.States
                     AddEntity(map[j+map.Length/2].ToCharArray()[i], i, j);
                 }
             }
+        }
+
+        public void loadContent(ContentManager content)
+        {
+
+            m_renderSprites.loadContent(content); // load content
         }
 
         public void reset(GameTime gameTime)
@@ -56,10 +65,13 @@ namespace CS5410.States
 
             m_rules.update(gameTime);
             m_apply.update(gameTime);
+
+            m_renderSprites.update(gameTime);
         }
 
         public void render(SpriteBatch spriteBatch)
         {
+            m_renderSprites.render(spriteBatch);
         }
 
         private void AddEntity(char c, int x, int y)
@@ -141,6 +153,7 @@ namespace CS5410.States
                 m_apply.Add(e);
                 m_input.Add(e);
                 m_collision.Add(e);
+                m_renderSprites.Add(e);
             }
 
 

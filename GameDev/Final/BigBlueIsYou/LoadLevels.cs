@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework.Content;
 using System.Collections.Generic;
 using System.IO;
 
@@ -9,7 +8,7 @@ namespace CS5410
         // use a dynamic programming (kind-of) solution so the levels only have to be loaded once
         private static Dictionary<int, (string, string[])> s_levels = null;
 
-        public static (string, string[]) loadLevels(ContentManager manager, int levelIndex)
+        public static (string, string[]) loadLevels(int levelIndex)
         {
             // file read method grabbed from ChatGPT -- to be honest, this could just be done in loadContent or something
 
@@ -66,6 +65,8 @@ namespace CS5410
 
                         index++;
                     }
+
+                    s_levels.Add(levelNumber, (title, map));
                 }
             }
 

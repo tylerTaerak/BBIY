@@ -31,6 +31,9 @@ namespace CS5410.States
             m_choice = 0;
 
             m_keyPresses = new List<Keys>();
+
+            m_width = graphics.PreferredBackBufferWidth;
+            m_height = graphics.PreferredBackBufferHeight;
         }
 
         public void loadContent(ContentManager content)
@@ -110,7 +113,7 @@ namespace CS5410.States
                         m_width / 2 - m_mainFont.MeasureString("Controls").X/2,
                         spacing
                         ),
-                    m_choice == 0 ? Color.Yellow : Color.White
+                    m_choice == 1 ? Color.Yellow : Color.White
                     );
 
             spacing += m_mainFont.MeasureString("Controls").Y + 20;
@@ -122,7 +125,7 @@ namespace CS5410.States
                         m_width / 2 - m_mainFont.MeasureString("Credits").X/2,
                         spacing
                         ),
-                    m_choice == 0 ? Color.Yellow : Color.White
+                    m_choice == 2 ? Color.Yellow : Color.White
                     );
 
             spacing += m_mainFont.MeasureString("Credits").Y + 20;
@@ -134,7 +137,7 @@ namespace CS5410.States
                         m_width / 2 - m_mainFont.MeasureString("Quit").X/2,
                         spacing
                         ),
-                    m_choice == 0 ? Color.Yellow : Color.White
+                    m_choice == 3 ? Color.Yellow : Color.White
                     );
 
             //spacing += m_mainFont.MeasureString("Quit").Y + 20;
