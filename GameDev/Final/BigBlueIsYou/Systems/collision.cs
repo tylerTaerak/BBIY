@@ -77,7 +77,6 @@ namespace CS5410.Systems
                         otherPos.CurrentPosition = (x, y);
 
                         collide(other);
-                        entPos.Facing = Components.Direction.Stopped;
                     }
                     if (otherProp.hasProperty(Components.Properties.Stop))
                     {
@@ -138,6 +137,7 @@ namespace CS5410.Systems
                     }
                 }
             }
+            entPos.Facing = Components.Direction.Stopped; // reset entity's facing
         }
     }
 }
