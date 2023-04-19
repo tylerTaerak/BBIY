@@ -9,6 +9,9 @@ namespace CS5410.States
 {
     public class MenuState : IState
     {
+        /**
+         *  NOTE: this needs to *dynamically* have level options
+         */
         private Dictionary<int, (string, GameStateType)> m_options;
         private int m_choice;
         private List<Keys> m_keyPresses;

@@ -4,6 +4,11 @@ using Microsoft.Xna.Framework;
 
 namespace CS5410.States
 {
+    /**
+     *  NOTE: Something cool to add would be some help
+     *  items shown on ESC, including pressing ESC again
+     *  to return to the main menu
+     */
     public class GameState : IState
     {
         private int m_levelIndex;
