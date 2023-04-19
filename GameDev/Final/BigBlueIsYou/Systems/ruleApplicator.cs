@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
-using System;
 
 namespace CS5410.Systems
 {
@@ -10,8 +9,12 @@ namespace CS5410.Systems
         private Dictionary<string, Components.Properties> m_propertyNames;
 
         private RulesSystem m_rules;
+        private RenderParticleSystem m_particles;
 
-        public RuleApplicatorSystem(RulesSystem rules)
+        private List<Rule> m_youRules;
+        private List<Rule> m_winRules;
+
+        public RuleApplicatorSystem(RulesSystem rules, RenderParticleSystem particles)
             : base(
                     typeof(Components.Noun),
                     typeof(Components.Property)
@@ -37,6 +40,10 @@ namespace CS5410.Systems
             m_propertyNames.Add("stop", Components.Properties.Stop);
 
             m_rules = rules;
+            m_particles = particles;
+
+            m_youRules = new List<Rule>();
+            m_winRules = new List<Rule>();
         }
 
         public override void update(GameTime gameTime)
@@ -74,8 +81,23 @@ namespace CS5410.Systems
                    }
                    else
                    {
-                       // apply new property
-
+                       // apply new Property
+                       if (m_propertyNames[rule.Application] == Components.Properties.You)
+                       {
+                           if (!m_youRules.Contains(rule) && m_youRules.Count != 0)
+                           {
+                               // particles for changing you
+                               m_particles.changeIsYou(m_objectNames[rule.Noun]);
+                           }
+                       }
+                       if (m_propertyNames[rule.Application] == Components.Properties.Win)
+                       {
+                           if (!m_winRules.Contains(rule))
+                           {
+                               // particles for changing win
+                               m_particles.changeIsWin(m_objectNames[rule.Noun]);
+                           }
+                       }
                        comp.Add(m_propertyNames[rule.Application]);
                    }
                 }

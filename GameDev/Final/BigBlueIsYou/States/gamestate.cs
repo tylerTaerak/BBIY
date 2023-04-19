@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 namespace CS5410.States
 {
@@ -20,19 +21,27 @@ namespace CS5410.States
         private Systems.InputSystem m_input;
         private Systems.CollisionSystem m_collision;
         private Systems.RenderAnimatedSystem m_renderSprites;
+        private Systems.RenderParticleSystem m_particles;
+
+        private List<uint> m_remove;
 
         public GameState(int levelIndex, GameStateType levelId)
         {
             m_levelIndex = levelIndex;
             m_level = levelId;
+
+            m_remove = new List<uint>();
         }
 
         public void initialize(GraphicsDevice graphicsDevice, GraphicsDeviceManager graphics)
         {
             m_rules = new Systems.RulesSystem();
-            m_apply = new Systems.RuleApplicatorSystem(m_rules);
             m_input = new Systems.InputSystem();
-            m_collision = new Systems.CollisionSystem();
+            m_particles = new Systems.RenderParticleSystem(100, 100);
+            m_particles.initialize(graphicsDevice, graphics);
+
+            m_apply = new Systems.RuleApplicatorSystem(m_rules, m_particles);
+            m_collision = new Systems.CollisionSystem(m_remove, m_particles);
             m_renderSprites = new Systems.RenderAnimatedSystem();
 
             // load level at level index
@@ -71,12 +80,19 @@ namespace CS5410.States
             m_rules.update(gameTime);
             m_apply.update(gameTime);
 
+            foreach (var entity in m_remove)
+            {
+                RemoveEntity(entity);
+            }
+
             m_renderSprites.update(gameTime);
+            m_particles.update(gameTime);
         }
 
         public void render(SpriteBatch spriteBatch)
         {
             m_renderSprites.render(spriteBatch);
+            m_particles.render(spriteBatch);
         }
 
         private void AddEntity(char c, int x, int y)
@@ -162,6 +178,16 @@ namespace CS5410.States
             }
 
 
+        }
+
+        private void RemoveEntity(uint id)
+        {
+            m_rules.Remove(id);
+            m_apply.Remove(id);
+            m_input.Remove(id);
+            m_collision.Remove(id);
+            m_renderSprites.Remove(id);
+            m_particles.Remove(id);
         }
     }
 }

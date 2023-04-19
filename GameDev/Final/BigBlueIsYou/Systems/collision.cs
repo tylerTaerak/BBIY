@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 namespace CS5410.Systems
 {
@@ -10,13 +11,18 @@ namespace CS5410.Systems
             private set;
         }
 
-        public CollisionSystem()
+        private List<uint> m_remove;
+        RenderParticleSystem m_particles;
+
+        public CollisionSystem(List<uint> removalList, RenderParticleSystem particles)
             : base(
                     typeof(Components.Position),
                     typeof(Components.Property)
                   )
         {
             Win = false;
+            m_remove = removalList;
+            m_particles = particles;
         }
 
         public override void update(GameTime gameTime)
@@ -116,27 +122,37 @@ namespace CS5410.Systems
 
                         if (entProp.hasProperty(Components.Properties.You))
                         {
+                            if (!Win)
+                            {
+                                m_particles.playerWin();
+                            }
                             Win = true;
                         }
                     }
                     if (otherProp.hasProperty(Components.Properties.Sink))
                     {
                         // sink, removing colliding tile and sink tile
+                        // removal will happen officially in the GameState class
 
-                        m_entities.Remove(entity.Id);
-                        m_entities.Remove(other.Id);
+                        m_remove.Add(entity.Id);
+                        m_remove.Add(other.Id);
+                        if (entProp.hasProperty(Components.Properties.You))
+                        {
+                            m_particles.playerDeath(entPos.CurrentPosition.Item1, entPos.CurrentPosition.Item2);
+                        }
                     }
                     if (otherProp.hasProperty(Components.Properties.Defeat))
                     {
                         // defeat, removing player tile
-
                         if (entProp.hasProperty(Components.Properties.You))
                         {
-                            m_entities.Remove(entity.Id);
+                            m_remove.Add(entity.Id);
+                            m_particles.playerDeath(entPos.CurrentPosition.Item1, entPos.CurrentPosition.Item2);
                         }
                     }
                 }
             }
+
             entPos.Facing = Components.Direction.Stopped; // reset entity's facing
         }
     }
