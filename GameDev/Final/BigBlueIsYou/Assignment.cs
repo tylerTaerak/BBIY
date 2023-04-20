@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
+using System;
 
 namespace CS5410
 {
@@ -35,13 +36,19 @@ namespace CS5410
             m_states = new Dictionary<States.GameStateType, States.IState>();
 
             m_states.Add(States.GameStateType.MainMenu, new States.MenuState());
-            m_states.Add(States.GameStateType.Sandbox, new States.GameState(0, States.GameStateType.Sandbox));
-            m_states.Add(States.GameStateType.Level1, new States.GameState(1, States.GameStateType.Level1));
-            m_states.Add(States.GameStateType.Level2, new States.GameState(2, States.GameStateType.Level2));
-            m_states.Add(States.GameStateType.Level3, new States.GameState(3, States.GameStateType.Level3));
-            m_states.Add(States.GameStateType.Level4, new States.GameState(4, States.GameStateType.Level4));
-            m_states.Add(States.GameStateType.Level5, new States.GameState(5, States.GameStateType.Level5));
+            var menu = (States.MenuState)m_states[States.GameStateType.MainMenu];
+
+            States.MenuState.s_levels = new List<States.GameState>();
+
+            // create levels
+            for (int i=0; i<Load.loadLevels().Count; i++)
+            {
+                States.MenuState.s_levels.Add(new States.GameState(i));
+            }
+
+
             m_states.Add(States.GameStateType.Controls, new States.ControlsState());
+            m_states.Add(States.GameStateType.Credits, new States.CreditState());
 
             // define default keymap for input
             Dictionary<Keys, Systems.Commands> keys = new Dictionary<Keys, Systems.Commands>();
@@ -52,6 +59,7 @@ namespace CS5410
             keys.Add(Keys.Z, Systems.Commands.Undo);
             keys.Add(Keys.R, Systems.Commands.Reset);
             keys.Add(Keys.Escape, Systems.Commands.Return);
+            keys.Add(Keys.Enter, Systems.Commands.Confirm);
 
             Systems.InputSystem.s_keyCommands = keys;
 
@@ -63,17 +71,25 @@ namespace CS5410
                 i.initialize(this.GraphicsDevice, m_graphics);
             }
 
+            foreach (var level in States.MenuState.s_levels)
+            {
+                level.initialize(this.GraphicsDevice, m_graphics);
+            }
+
             m_currState = States.GameStateType.MainMenu;
             m_prevState = States.GameStateType.MainMenu;
 
             base.Initialize();
         }
 
-        protected override void LoadContent()
-        {
+        protected override void LoadContent() {
             m_spriteBatch = new SpriteBatch(GraphicsDevice);
 
             foreach (var i in m_states.Values)
+            {
+                i.loadContent(this.Content);
+            }
+            foreach (var i in States.MenuState.s_levels)
             {
                 i.loadContent(this.Content);
             }
@@ -81,9 +97,15 @@ namespace CS5410
 
         protected override void Update(GameTime gameTime)
         {
-            if (m_currState != States.GameStateType.Quit)
+            if (m_currState != States.GameStateType.Quit && m_currState != States.GameStateType.Level)
             {
                 m_currState = m_states[m_currState].processInput(gameTime);
+            }
+            if (m_currState == States.GameStateType.Level)
+            {
+                States.MenuState menu = (States.MenuState)m_states[States.GameStateType.MainMenu];
+                States.GameState level = menu.Level;
+                m_currState = level.processInput(gameTime);
             }
 
             if (m_currState == States.GameStateType.Quit)
@@ -96,11 +118,30 @@ namespace CS5410
             {
                 if (m_prevState != m_currState)
                 {
-                    m_states[m_currState].reset(gameTime);
+                    Console.WriteLine(m_prevState + ", " + m_currState);
+                    if (m_currState == States.GameStateType.Level)
+                    {
+                        States.MenuState menu = (States.MenuState)m_states[States.GameStateType.MainMenu];
+                        States.GameState level = menu.Level;
+                        level.reset(gameTime);
+                    }
+                    else
+                    {
+                        m_states[m_currState].reset(gameTime);
+                    }
                     m_prevState = m_currState;
                 }
 
-                m_states[m_currState].update(gameTime);
+                if (m_currState == States.GameStateType.Level)
+                {
+                    States.MenuState menu = (States.MenuState)m_states[States.GameStateType.MainMenu];
+                    States.GameState level = menu.Level;
+                    level.update(gameTime);
+                }
+                else
+                {
+                    m_states[m_currState].update(gameTime);
+                }
             }
 
             base.Update(gameTime);
@@ -112,9 +153,15 @@ namespace CS5410
 
             m_spriteBatch.Begin(SpriteSortMode.Deferred);
 
-            if (m_currState != States.GameStateType.Quit)
+            if (m_currState != States.GameStateType.Quit && m_currState != States.GameStateType.Level)
             {
                 m_states[m_currState].render(m_spriteBatch);
+            }
+            if (m_currState == States.GameStateType.Level)
+            {
+                States.MenuState menu = (States.MenuState)m_states[States.GameStateType.MainMenu];
+                States.GameState level = menu.Level;
+                level.render(m_spriteBatch);
             }
 
             m_spriteBatch.End();

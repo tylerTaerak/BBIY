@@ -8,7 +8,7 @@ namespace CS5410
         // use a dynamic programming (kind-of) solution so the levels only have to be loaded once
         private static Dictionary<int, (string, string[])> s_levels = null;
 
-        public static (string, string[]) loadLevels(int levelIndex)
+        public static Dictionary<int, (string, string[])> loadLevels()
         {
             // file read method grabbed from ChatGPT -- to be honest, this could just be done in loadContent or something
 
@@ -70,7 +70,7 @@ namespace CS5410
                 }
             }
 
-            return s_levels[levelIndex];
+            return s_levels;
         }
     }
 }

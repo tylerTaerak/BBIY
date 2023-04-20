@@ -13,7 +13,8 @@ namespace CS5410.Systems
         Right,
         Undo,
         Reset,
-        Return
+        Return,
+        Confirm
     }
 
     // configure to be serializable using the keymap

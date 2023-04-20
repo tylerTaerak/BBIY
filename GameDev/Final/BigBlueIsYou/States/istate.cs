@@ -22,12 +22,7 @@ namespace CS5410.States
     public enum GameStateType
     {
         MainMenu,
-        Sandbox,
-        Level1,
-        Level2,
-        Level3,
-        Level4,
-        Level5,
+        Level,
         Controls,
         Credits,
         Quit

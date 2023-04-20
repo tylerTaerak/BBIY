@@ -22,14 +22,27 @@ namespace CS5410.States
         private SpriteFont m_mainFont;
         private SpriteFont m_largeFont;
 
+        public static List<GameState> s_levels;
+
+        public GameState Level
+        {
+            get;
+            set;
+        }
+
         public void initialize(GraphicsDevice graphicsDevice, GraphicsDeviceManager graphics)
         {
             m_options = new Dictionary<int, (string, GameStateType)>();
 
-            m_options.Add(0, ("Sandbox", GameStateType.Sandbox));
-            m_options.Add(1, ("Controls", GameStateType.Controls));
-            m_options.Add(2, ("Credits", GameStateType.Credits));
-            m_options.Add(3, ("Quit", GameStateType.Quit));
+            int count = 0;
+            foreach (var state in s_levels)
+            {
+                m_options.Add(count++, (state.Title, GameStateType.Level));
+            }
+
+            m_options.Add(count++, ("Controls", GameStateType.Controls));
+            m_options.Add(count++, ("Credits", GameStateType.Credits));
+            m_options.Add(count++, ("Quit", GameStateType.Quit));
 
             m_choice = 0;
 
@@ -47,6 +60,7 @@ namespace CS5410.States
 
         public void reset(GameTime gameTime)
         {
+            m_choice = 0;
         }
 
         public GameStateType processInput(GameTime gameTime)
@@ -58,15 +72,19 @@ namespace CS5410.States
             {
                 if (!m_keyPresses.Contains(k))
                 {
-                    switch(k)
+                    switch(Systems.InputSystem.s_keyCommands[k])
                     {
-                        case Keys.Up:
+                        case Systems.Commands.Up:
                             m_choice = Math.Max(--m_choice, 0);
                             break;
-                        case Keys.Down:
+                        case Systems.Commands.Down:
                             m_choice = Math.Min(++m_choice, m_options.Count-1);
                             break;
-                        case Keys.Enter:
+                        case Systems.Commands.Confirm:
+                            if (m_options[m_choice].Item2 == GameStateType.Level)
+                            {
+                                Level = s_levels[m_choice];
+                            }
                             return m_options[m_choice].Item2;
 
                     }
@@ -97,17 +115,23 @@ namespace CS5410.States
 
             float spacing = 40 + m_largeFont.MeasureString("Big Blue is You").Y + 40;
 
-            spriteBatch.DrawString(
-                    m_mainFont,
-                    "Sandbox",
-                    new Vector2(
-                        m_width / 2 - m_mainFont.MeasureString("Sandbox").X/2,
-                        spacing
-                        ),
-                    m_choice == 0 ? Color.Yellow : Color.White
-                    );
+            int count = 0;
+            foreach (var level in s_levels)
+            {
+                string s = level.Title;
 
-            spacing += m_mainFont.MeasureString("Sandbox").Y + 20;
+                spriteBatch.DrawString(
+                        m_mainFont,
+                        s,
+                        new Vector2(
+                            m_width / 2 - m_mainFont.MeasureString(s).X/2,
+                            spacing
+                            ),
+                        m_choice == count++ ? Color.Gold : Color.White
+                        );
+
+                spacing += m_mainFont.MeasureString(s).Y + 20;
+            }
 
             spriteBatch.DrawString(
                     m_mainFont,
@@ -116,7 +140,7 @@ namespace CS5410.States
                         m_width / 2 - m_mainFont.MeasureString("Controls").X/2,
                         spacing
                         ),
-                    m_choice == 1 ? Color.Yellow : Color.White
+                    m_choice == count++ ? Color.Gold : Color.White
                     );
 
             spacing += m_mainFont.MeasureString("Controls").Y + 20;
@@ -128,7 +152,7 @@ namespace CS5410.States
                         m_width / 2 - m_mainFont.MeasureString("Credits").X/2,
                         spacing
                         ),
-                    m_choice == 2 ? Color.Yellow : Color.White
+                    m_choice == count++ ? Color.Gold : Color.White
                     );
 
             spacing += m_mainFont.MeasureString("Credits").Y + 20;
@@ -140,10 +164,8 @@ namespace CS5410.States
                         m_width / 2 - m_mainFont.MeasureString("Quit").X/2,
                         spacing
                         ),
-                    m_choice == 3 ? Color.Yellow : Color.White
+                    m_choice == count++ ? Color.Gold : Color.White
                     );
-
-            //spacing += m_mainFont.MeasureString("Quit").Y + 20;
         }
     }
 }

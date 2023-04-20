@@ -1,7 +1,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using System;
 
@@ -15,7 +14,6 @@ namespace CS5410.States
     public class GameState : IState
     {
         private int m_levelIndex;
-        private GameStateType m_level;
         private Stack<Dictionary<uint, Entities.Entity>> m_moves;
 
         /* systems */
@@ -30,10 +28,15 @@ namespace CS5410.States
 
         private List<uint> m_remove;
 
-        public GameState(int levelIndex, GameStateType levelId)
+        public string Title
+        {
+            get;
+            set;
+        }
+
+        public GameState(int levelIndex)
         {
             m_levelIndex = levelIndex;
-            m_level = levelId;
 
             m_remove = new List<uint>();
             m_moves = new Stack<Dictionary<uint, Entities.Entity>>();
@@ -42,7 +45,8 @@ namespace CS5410.States
         public void initialize(GraphicsDevice graphicsDevice, GraphicsDeviceManager graphics)
         {
             // load level at level index
-            var (title, map) = Load.loadLevels(m_levelIndex);
+            var (title, map) = Load.loadLevels()[m_levelIndex];
+            Title = title;
 
             m_rules = new Systems.RulesSystem();
             m_input = new Systems.InputSystem();
@@ -94,11 +98,12 @@ namespace CS5410.States
 
             if (m_input.ReturnToMenu)
             {
+                Console.WriteLine("Returning to Menu");
                 m_input.ReturnToMenu = false;
                 return GameStateType.MainMenu;
             }
 
-            return m_level;
+            return GameStateType.Level;
         }
 
         public void update(GameTime gameTime)
