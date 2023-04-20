@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
 using System.Collections.Generic;
-using System;
 
 namespace CS5410.States
 {
@@ -99,6 +98,15 @@ namespace CS5410.States
 
         public void reset(GameTime gameTime)
         {
+            goToFirst();
+
+            m_particles.reset();
+
+            MediaPlayer.Play(m_song);
+        }
+
+        private void goToFirst()
+        {
             // clear list, and add just the initial state back into the move list
             while (m_moves.Count > 1)
             {
@@ -110,8 +118,6 @@ namespace CS5410.States
             m_moves.Push(Systems.System.Copy(m_rules, m_input, m_renderSprites, m_particles, m_apply, m_collision));
 
             m_collision.Win = false;
-
-            MediaPlayer.Play(m_song);
         }
 
         public GameStateType processInput(GameTime gameTime)
@@ -160,16 +166,16 @@ namespace CS5410.States
                 if (m_moves.Count > 1)
                 {
                     m_moves.Pop();
+                    var last = m_moves.Peek();
+                    Systems.System.ReadFromCopy(last, m_rules, m_input, m_renderSprites, m_particles, m_apply, m_collision);
                 }
-                var last = m_moves.Peek();
-                Systems.System.ReadFromCopy(last, m_rules, m_input, m_renderSprites, m_particles, m_apply, m_collision);
                 m_input.Undo = false;
             }
 
 
             if (m_input.Reset)
             {
-                this.reset(gameTime);
+                this.goToFirst();
                 m_input.Reset = false;
             }
 

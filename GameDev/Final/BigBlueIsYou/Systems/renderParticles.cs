@@ -120,6 +120,11 @@ namespace CS5410.Systems
             m_graphics = graphicsDevice;
         }
 
+        public void reset()
+        {
+            m_particles.Clear();
+        }
+
         private void addParticlesAroundSquare(int x, int y, Color[] colors)
         {
             var xOffset = m_windowWidth / 2 - (m_mapDim * 40) / 2;
