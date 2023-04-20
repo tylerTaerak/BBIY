@@ -9,7 +9,7 @@ namespace CS5410.Entities
             flag.AddComponents(
                     new Components.Noun(Components.Objects.Flag),
                     new Components.Position(x, y),
-                    new Components.Sprite(),
+                    new Components.Sprite(Components.RenderLayer.Middle),
                     new Components.Property()
                     );
 

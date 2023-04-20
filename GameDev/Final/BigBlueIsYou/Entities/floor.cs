@@ -9,7 +9,7 @@ namespace CS5410.Entities
             floor.AddComponents(
                     new Components.Noun(Components.Objects.Floor),
                     new Components.Position(x, y),
-                    new Components.Sprite(),
+                    new Components.Sprite(Components.RenderLayer.Bottom),
                     new Components.Property()
                     );
 

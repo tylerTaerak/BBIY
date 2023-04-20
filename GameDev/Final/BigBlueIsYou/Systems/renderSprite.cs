@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 
 namespace CS5410.Systems
 {
@@ -19,14 +20,16 @@ namespace CS5410.Systems
         private int m_windowHeight;
 
         private int m_mapDim;
+        private CollisionSystem m_collision;
 
         private SpriteFont m_font; // for showing instructions at bottom of screen
 
-        public RenderAnimatedSystem(int dim)
+        public RenderAnimatedSystem(int dim, CollisionSystem collision)
             :base(
                  )
         {
             m_mapDim = dim; // grid size of level
+            m_collision = collision; // needed for checking a win
         }
 
         public void initialize(GraphicsDevice graphicsDevice, GraphicsDeviceManager graphics)
@@ -72,15 +75,15 @@ namespace CS5410.Systems
             var wall = content.Load<Texture2D>("images/wall");
             var water = content.Load<Texture2D>("images/water");
 
-            m_objSpriteMap.Add(Components.Objects.BigBlue, (new Sprites.AnimatedSprite(bb, new int[] {m_timer}), Color.White));
-            m_objSpriteMap.Add(Components.Objects.Flag, (new Sprites.AnimatedSprite(flag, new int[] {m_timer, m_timer, m_timer}), Color.Beige));
-            m_objSpriteMap.Add(Components.Objects.Floor, (new Sprites.AnimatedSprite(floor, new int[] {m_timer, m_timer, m_timer}), Color.DarkGray));
+            m_objSpriteMap.Add(Components.Objects.BigBlue, (new Sprites.AnimatedSprite(bb, new int[] {m_timer}), Color.White)); // color's built in to this one
+            m_objSpriteMap.Add(Components.Objects.Flag, (new Sprites.AnimatedSprite(flag, new int[] {m_timer, m_timer, m_timer}), Color.Khaki));
+            m_objSpriteMap.Add(Components.Objects.Floor, (new Sprites.AnimatedSprite(floor, new int[] {m_timer, m_timer, m_timer}), Color.SaddleBrown));
             m_objSpriteMap.Add(Components.Objects.Grass, (new Sprites.AnimatedSprite(grass, new int[] {m_timer, m_timer, m_timer}), Color.Green));
             m_objSpriteMap.Add(Components.Objects.Hedge, (new Sprites.AnimatedSprite(hedge, new int[] {m_timer, m_timer, m_timer}), Color.DarkGreen));
-            m_objSpriteMap.Add(Components.Objects.Lava, (new Sprites.AnimatedSprite(lava, new int[] {m_timer, m_timer, m_timer}), Color.Red));
+            m_objSpriteMap.Add(Components.Objects.Lava, (new Sprites.AnimatedSprite(lava, new int[] {m_timer, m_timer, m_timer}), Color.Tomato));
             m_objSpriteMap.Add(Components.Objects.Rock, (new Sprites.AnimatedSprite(rock, new int[] {m_timer, m_timer, m_timer}), Color.Gray));
-            m_objSpriteMap.Add(Components.Objects.Wall, (new Sprites.AnimatedSprite(wall, new int[] {m_timer, m_timer, m_timer}), Color.LightGray));
-            m_objSpriteMap.Add(Components.Objects.Water, (new Sprites.AnimatedSprite(water, new int[] {m_timer, m_timer, m_timer}), Color.Blue));
+            m_objSpriteMap.Add(Components.Objects.Wall, (new Sprites.AnimatedSprite(wall, new int[] {m_timer, m_timer, m_timer}), Color.DarkGray));
+            m_objSpriteMap.Add(Components.Objects.Water, (new Sprites.AnimatedSprite(water, new int[] {m_timer, m_timer, m_timer}), Color.DarkSlateBlue));
 
 
             /* word sprites */
@@ -98,17 +101,17 @@ namespace CS5410.Systems
             var wwin = content.Load<Texture2D>("images/word-win");
             var wyou = content.Load<Texture2D>("images/word-you");
 
-            m_wordSpriteMap.Add("bigblue", (new Sprites.AnimatedSprite(wbaba, new int[] {m_timer, m_timer, m_timer}), Color.White));
-            m_wordSpriteMap.Add("flag", (new Sprites.AnimatedSprite(wflag, new int[] {m_timer, m_timer, m_timer}), Color.White));
-            m_wordSpriteMap.Add("is", (new Sprites.AnimatedSprite(wis, new int[] {m_timer, m_timer, m_timer}), Color.Yellow));
+            m_wordSpriteMap.Add("bigblue", (new Sprites.AnimatedSprite(wbaba, new int[] {m_timer, m_timer, m_timer}), Color.Blue));
+            m_wordSpriteMap.Add("flag", (new Sprites.AnimatedSprite(wflag, new int[] {m_timer, m_timer, m_timer}), Color.Wheat));
+            m_wordSpriteMap.Add("is", (new Sprites.AnimatedSprite(wis, new int[] {m_timer, m_timer, m_timer}), Color.Beige));
             m_wordSpriteMap.Add("defeat", (new Sprites.AnimatedSprite(wkill, new int[] {m_timer, m_timer, m_timer}), Color.Red));
-            m_wordSpriteMap.Add("lava", (new Sprites.AnimatedSprite(wlava, new int[] {m_timer, m_timer, m_timer}), Color.White));
+            m_wordSpriteMap.Add("lava", (new Sprites.AnimatedSprite(wlava, new int[] {m_timer, m_timer, m_timer}), Color.DeepPink));
             m_wordSpriteMap.Add("push", (new Sprites.AnimatedSprite(wpush, new int[] {m_timer, m_timer, m_timer}), Color.Orange));
-            m_wordSpriteMap.Add("rock", (new Sprites.AnimatedSprite(wrock, new int[] {m_timer, m_timer, m_timer}), Color.White));
-            m_wordSpriteMap.Add("sink", (new Sprites.AnimatedSprite(wsink, new int[] {m_timer, m_timer, m_timer}), Color.Cyan));
+            m_wordSpriteMap.Add("rock", (new Sprites.AnimatedSprite(wrock, new int[] {m_timer, m_timer, m_timer}), Color.LightSlateGray));
+            m_wordSpriteMap.Add("sink", (new Sprites.AnimatedSprite(wsink, new int[] {m_timer, m_timer, m_timer}), Color.Blue));
             m_wordSpriteMap.Add("stop", (new Sprites.AnimatedSprite(wstop, new int[] {m_timer, m_timer, m_timer}), Color.DarkRed));
-            m_wordSpriteMap.Add("wall", (new Sprites.AnimatedSprite(wwall, new int[] {m_timer, m_timer, m_timer}), Color.White));
-            m_wordSpriteMap.Add("water", (new Sprites.AnimatedSprite(wwater, new int[] {m_timer, m_timer, m_timer}), Color.White));
+            m_wordSpriteMap.Add("wall", (new Sprites.AnimatedSprite(wwall, new int[] {m_timer, m_timer, m_timer}), Color.DarkGray));
+            m_wordSpriteMap.Add("water", (new Sprites.AnimatedSprite(wwater, new int[] {m_timer, m_timer, m_timer}), Color.LightSteelBlue));
             m_wordSpriteMap.Add("win", (new Sprites.AnimatedSprite(wwin, new int[] {m_timer, m_timer, m_timer}), Color.Gold));
             m_wordSpriteMap.Add("you", (new Sprites.AnimatedSprite(wyou, new int[] {m_timer, m_timer, m_timer}), Color.Lime));
 
@@ -134,7 +137,29 @@ namespace CS5410.Systems
             var xOffset = m_windowWidth / 2 - (m_mapDim * 40) / 2;
             var yOffset = m_windowHeight / 2 - (m_mapDim * 40) / 2;
 
-            foreach(Entities.Entity entity in m_entities.Values)
+            List<Entities.Entity> bottomQueue = new List<Entities.Entity>();
+            List<Entities.Entity> middleQueue = new List<Entities.Entity>();
+            List<Entities.Entity> topQueue = new List<Entities.Entity>();
+
+            foreach (var entity in m_entities.Values)
+            {
+                var rend = entity.GetComponent<Components.Sprite>();
+                switch(rend.Layer)
+                {
+                    case Components.RenderLayer.Bottom:
+                        bottomQueue.Add(entity);
+                        break;
+                    case Components.RenderLayer.Middle:
+                        middleQueue.Add(entity);
+                        break;
+                    case Components.RenderLayer.Top:
+                        topQueue.Add(entity);
+                        break;
+                }
+            }
+
+
+            foreach(Entities.Entity entity in bottomQueue)
             {
                 Sprites.AnimatedSprite sprite;
                 Color color;
@@ -158,31 +183,71 @@ namespace CS5410.Systems
                 sprite.render(spriteBatch, xOffset, yOffset, x, y, color);
             }
 
-            // instruction for undo
-            string undoKey = Enum.GetName(typeof(Keys), Keys.Z);
-            string undoInst = $"{undoKey}: Undo";
-            spriteBatch.DrawString(
-                    m_font,
-                    undoInst,
-                    new Vector2(
-                        m_windowWidth / 4 - m_font.MeasureString(undoInst).X/2,
-                        m_windowHeight - m_windowHeight / 20
-                        ),
-                    Color.White
-                    );
+            foreach(Entities.Entity entity in middleQueue)
+            {
+                Sprites.AnimatedSprite sprite;
+                Color color;
+                if (entity.ContainsComponent<Components.Noun>())
+                {
+                    var noun = entity.GetComponent<Components.Noun>();
+                    sprite = m_objSpriteMap[noun.Object].Item1;
+                    color = m_objSpriteMap[noun.Object].Item2;
+                }
+                else
+                {
+                    var text = entity.GetComponent<Components.Text>();
+                    sprite = m_wordSpriteMap[text.Word].Item1;
+                    color = m_wordSpriteMap[text.Word].Item2;
+                }
 
-            // instruction to reset
-            string resetKey = Enum.GetName(typeof(Keys), Keys.R);
-            string resetInst = $"{resetKey}: Reset";
-            spriteBatch.DrawString(
-                    m_font,
-                    resetInst,
-                    new Vector2(
-                        m_windowWidth / 2 - m_font.MeasureString(resetInst).X/2,
-                        m_windowHeight - m_windowHeight / 20
-                        ),
-                    Color.White
-                    );
+
+                var pos = entity.GetComponent<Components.Position>();
+                var (x, y) = pos.CurrentPosition;
+
+                sprite.render(spriteBatch, xOffset, yOffset, x, y, color);
+            }
+
+            foreach(Entities.Entity entity in topQueue)
+            {
+                Sprites.AnimatedSprite sprite;
+                Color color;
+                if (entity.ContainsComponent<Components.Noun>())
+                {
+                    var noun = entity.GetComponent<Components.Noun>();
+                    sprite = m_objSpriteMap[noun.Object].Item1;
+                    color = m_objSpriteMap[noun.Object].Item2;
+                }
+                else
+                {
+                    var text = entity.GetComponent<Components.Text>();
+                    sprite = m_wordSpriteMap[text.Word].Item1;
+                    color = m_wordSpriteMap[text.Word].Item2;
+                }
+
+
+                var pos = entity.GetComponent<Components.Position>();
+                var (x, y) = pos.CurrentPosition;
+
+                sprite.render(spriteBatch, xOffset, yOffset, x, y, color);
+            }
+
+
+            if (!m_collision.Win)
+            {
+                // instruction for undo
+                Keys undo = InputSystem.s_keyCommands.FirstOrDefault(x=> x.Value == Commands.Undo).Key; // ugh
+                string undoKey = Enum.GetName(typeof(Keys), undo);
+                string undoInst = $"{undoKey}: Undo";
+                spriteBatch.DrawString(
+                        m_font,
+                        undoInst,
+                        new Vector2(
+                            m_windowWidth / 4 - m_font.MeasureString(undoInst).X/2,
+                            m_windowHeight - m_windowHeight / 20
+                            ),
+                        Color.White
+                        );
+            }
 
             // instruction to leave to menu
             string menuKey = Enum.GetName(typeof(Keys), Keys.Escape);
@@ -191,11 +256,30 @@ namespace CS5410.Systems
                     m_font,
                     menuInst,
                     new Vector2(
-                        3 * m_windowWidth / 4 - m_font.MeasureString(menuInst).X/2,
+                        m_windowWidth / 2 - m_font.MeasureString(menuInst).X/2,
                         m_windowHeight - m_windowHeight / 20
                         ),
                     Color.White
                     );
+
+
+            if (!m_collision.Win)
+            {
+                // instruction to reset
+                Keys reset = InputSystem.s_keyCommands.FirstOrDefault(x=> x.Value == Commands.Reset).Key; // ugh
+                string resetKey = Enum.GetName(typeof(Keys), reset);
+                string resetInst = $"{resetKey}: Reset";
+                spriteBatch.DrawString(
+                        m_font,
+                        resetInst,
+                        new Vector2(
+                            3 * m_windowWidth / 4 - m_font.MeasureString(resetInst).X/2,
+                            m_windowHeight - m_windowHeight / 20
+                            ),
+                        Color.White
+                        );
+            }
+
         }
     }
 }

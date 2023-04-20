@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
-using System;
 
 namespace CS5410
 {
@@ -27,7 +26,7 @@ namespace CS5410
         protected override void Initialize()
         {
             /* Set Graphics Settings */
-            // something's not working quite right here... Maybe it's just Hyprland though (twas)
+            // change game resolution here
             m_graphics.PreferredBackBufferWidth = 1920;
             m_graphics.PreferredBackBufferHeight = 1080;
             m_graphics.ApplyChanges();
@@ -58,8 +57,6 @@ namespace CS5410
             keys.Add(Keys.Right, Systems.Commands.Right);
             keys.Add(Keys.Z, Systems.Commands.Undo);
             keys.Add(Keys.R, Systems.Commands.Reset);
-            keys.Add(Keys.Escape, Systems.Commands.Return);
-            keys.Add(Keys.Enter, Systems.Commands.Confirm);
 
             Systems.InputSystem.s_keyCommands = keys;
 
@@ -95,7 +92,7 @@ namespace CS5410
             }
         }
 
-        protected override void Update(GameTime gameTime)
+        protected override async void Update(GameTime gameTime)
         {
             if (m_currState != States.GameStateType.Quit && m_currState != States.GameStateType.Level)
             {
@@ -110,7 +107,11 @@ namespace CS5410
 
             if (m_currState == States.GameStateType.Quit)
             {
-                // save any data
+                if (!LoadInput.s_saving)
+                {
+                    LoadInput.s_saving = true;
+                    await LoadInput.SaveInputMap();
+                }
                 Exit();
             }
 
@@ -118,7 +119,6 @@ namespace CS5410
             {
                 if (m_prevState != m_currState)
                 {
-                    Console.WriteLine(m_prevState + ", " + m_currState);
                     if (m_currState == States.GameStateType.Level)
                     {
                         States.MenuState menu = (States.MenuState)m_states[States.GameStateType.MainMenu];
@@ -149,7 +149,7 @@ namespace CS5410
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             m_spriteBatch.Begin(SpriteSortMode.Deferred);
 

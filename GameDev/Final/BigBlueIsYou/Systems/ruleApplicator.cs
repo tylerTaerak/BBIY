@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using System.Collections.Generic;
-using System;
 
 namespace CS5410.Systems
 {
@@ -12,8 +12,17 @@ namespace CS5410.Systems
         private RulesSystem m_rules;
         private RenderParticleSystem m_particles;
 
-        private Components.Objects? m_you; // can be null when starting
-        private Components.Objects? m_win; // can be null when starting
+        private List<Components.Objects> m_you; // can be null when starting
+        private List<Components.Objects> m_win; // can be null when starting
+
+        private bool m_firstRound; // we don't want to emit particles on the first update
+
+        /* defined in GameState.loadContent; play a sound when IS WIN changes */
+        public SoundEffect ChangeWin
+        {
+            get;
+            set;
+        }
 
         public RuleApplicatorSystem(RulesSystem rules, RenderParticleSystem particles)
             : base(
@@ -43,17 +52,29 @@ namespace CS5410.Systems
             m_rules = rules;
             m_particles = particles;
 
-            m_you = null;
-            m_win = null;
+            m_you = new List<Components.Objects>();
+            m_win = new List<Components.Objects>();
+
+            m_firstRound = true;
         }
 
         public override void update(GameTime gameTime)
         {
             /* after generating rules for this cycle, apply them */
 
+            List<Components.Objects> tempYou = new List<Components.Objects>();
+            List<Components.Objects> tempWin = new List<Components.Objects>();
+
+            bool playSound = false;
+
             foreach (Entities.Entity entity in m_entities.Values)
             {
                 var comp = entity.GetComponent<Components.Property>();
+
+               if (entity.GetComponent<Components.Noun>().Object == Components.Objects.Hedge)
+               {
+                   continue; // hedges always act as a border to the level
+               }
 
                 comp.Clear();
                 foreach (Rule rule in m_rules.Rules)
@@ -70,8 +91,6 @@ namespace CS5410.Systems
                        continue;
                    }
 
-
-
                    // apply rule
                    if (m_objectNames.ContainsKey(rule.Application))
                    {
@@ -85,34 +104,48 @@ namespace CS5410.Systems
                        // apply new Property
                        if (m_propertyNames[rule.Application] == Components.Properties.You)
                        {
-                           if (m_you == null)
+                           if (!m_you.Contains(m_objectNames[rule.Noun]))
                            {
-                                m_you = m_objectNames[rule.Noun];
-                           }
-                           else if (m_objectNames[rule.Noun] != m_you.Value)
-                           {
-                               m_you = m_objectNames[rule.Noun];
-                               m_particles.changeIsYou(m_you.Value);
+                               if (!m_firstRound)
+                               {
+                                   m_particles.changeIsYou(m_objectNames[rule.Noun]);
+                               }
                            }
 
+                           tempYou.Add(m_objectNames[rule.Noun]);
                        }
                        if (m_propertyNames[rule.Application] == Components.Properties.Win)
                        {
-                           if (m_win == null)
+                           if (!m_win.Contains(m_objectNames[rule.Noun]))
                            {
-                               m_win = m_objectNames[rule.Noun];
-                               m_particles.changeIsWin(m_win.Value);
+                               if (!m_firstRound)
+                               {
+                                   m_particles.changeIsWin(m_objectNames[rule.Noun]);
+
+                                   playSound = true;
+                               }
                            }
-                           if (m_objectNames[rule.Noun] != m_win.Value)
-                           {
-                               m_win = m_objectNames[rule.Noun];
-                               m_particles.changeIsWin(m_win.Value);
-                           }
+
+                           tempWin.Add(m_objectNames[rule.Noun]);
                        }
                        comp.Add(m_propertyNames[rule.Application]);
                    }
                 }
             }
+
+            if (playSound)
+            {
+               ChangeWin.Play();
+            }
+
+            m_you.Clear();
+            m_you.AddRange(tempYou);
+
+            m_win.Clear();
+            m_win.AddRange(tempWin);
+
+            m_firstRound = false;
+
         }
     }
 }

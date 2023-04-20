@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using System.Collections.Generic;
 
 namespace CS5410.Systems
@@ -8,7 +9,14 @@ namespace CS5410.Systems
         public bool Win
         {
             get;
-            private set;
+            set;
+        }
+
+        /* set in GameState.loadContent; play a sound (once) on win */
+        public SoundEffect WinSound
+        {
+            get;
+            set;
         }
 
         private List<uint> m_remove;
@@ -125,6 +133,7 @@ namespace CS5410.Systems
                             if (!Win)
                             {
                                 m_particles.playerWin();
+                                WinSound.Play();
                             }
                             Win = true;
                         }
@@ -136,10 +145,7 @@ namespace CS5410.Systems
 
                         m_remove.Add(entity.Id);
                         m_remove.Add(other.Id);
-                        if (entProp.hasProperty(Components.Properties.You))
-                        {
-                            m_particles.playerDeath(entPos.CurrentPosition.Item1, entPos.CurrentPosition.Item2);
-                        }
+                        m_particles.playerDeath(entPos.CurrentPosition.Item1, entPos.CurrentPosition.Item2); // any destroyed item, not just YOU
                     }
                     if (otherProp.hasProperty(Components.Properties.Defeat))
                     {

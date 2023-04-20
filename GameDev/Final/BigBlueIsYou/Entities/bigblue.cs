@@ -9,7 +9,7 @@ namespace CS5410.Entities
             bb.AddComponents(
                     new Components.Noun(Components.Objects.BigBlue),
                     new Components.Position(x, y),
-                    new Components.Sprite(),
+                    new Components.Sprite(Components.RenderLayer.Top),
                     new Components.Property()
                     );
 

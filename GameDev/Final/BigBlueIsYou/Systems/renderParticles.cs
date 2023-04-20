@@ -9,6 +9,7 @@ namespace CS5410.Systems
         internal class Particle
         {
             private Texture2D m_tex;
+            private int m_initialLifetime;
 
             /// width and height (square) of particle
             internal int Dim
@@ -50,12 +51,32 @@ namespace CS5410.Systems
                 Position = position;
                 Speed = speed;
                 Dim = width;
+                m_initialLifetime = lifetimeMs;
                 Lifetime = TimeSpan.FromMilliseconds(lifetimeMs);
             }
 
             internal void render(SpriteBatch spriteBatch)
             {
                 // render individual particle
+
+                // fade out the particle halfway through lifetime
+                if (Lifetime.TotalMilliseconds < m_initialLifetime / 2)
+                {
+                    float alpha = (float)(Lifetime.TotalMilliseconds/(m_initialLifetime/2));
+
+                    spriteBatch.Draw(
+                            m_tex,
+                            new Rectangle(
+                                (int)Position.X,
+                                (int)Position.Y,
+                                Dim,
+                                Dim
+                                ),
+                            Color.White * alpha
+                            );
+
+                    return;
+                }
                 spriteBatch.Draw(
                         m_tex,
                         new Rectangle(
@@ -99,7 +120,7 @@ namespace CS5410.Systems
             m_graphics = graphicsDevice;
         }
 
-        private void addParticlesAroundSquare(int x, int y, Texture2D tex)
+        private void addParticlesAroundSquare(int x, int y, Color[] colors)
         {
             var xOffset = m_windowWidth / 2 - (m_mapDim * 40) / 2;
             var yOffset = m_windowHeight / 2 - (m_mapDim * 40) / 2;
@@ -107,17 +128,25 @@ namespace CS5410.Systems
             int xPixels = xOffset + m_nodeWidth * x;
             int yPixels = yOffset + m_nodeWidth * y;
 
-            int numPixels = 100;
+            int numPixels = 60;
             int numPixelsPerSide = numPixels / 4; // 4 sides on a square
 
             var centerX = m_nodeWidth/2 + xPixels;
             var centerY = m_nodeWidth/2 + yPixels;
 
-            float particleSpeed = (float)0.75; // px per ms
-            int particleWidth = 5; // px
-            int particleLifetime = 100; // ms
+            float particleSpeed = (float)0.12; // px per ms
+            int particleWidth = 4; // px
+            int particleLifetime = 400; // ms
 
             Random rand = new Random();
+            List<Texture2D> textures = new List<Texture2D>();
+
+            foreach(Color c in colors)
+            {
+                Texture2D tex = new Texture2D(m_graphics, 1, 1);
+                tex.SetData(new[] {c});
+                textures.Add(tex);
+            }
 
             for (var i=0; i<numPixelsPerSide; i++)
             {
@@ -130,6 +159,8 @@ namespace CS5410.Systems
 
                 Vector2 speed = Vector2.Normalize(new Vector2(diffX, diffY));
                 speed = Vector2.Multiply(speed, particleSpeed);
+
+                Texture2D tex = textures[rand.Next()%textures.Count];
 
                 m_particles.Add(new Particle(tex, new Vector2(partX, partY), speed, particleWidth, particleLifetime));
             }
@@ -146,6 +177,8 @@ namespace CS5410.Systems
                 Vector2 speed = Vector2.Normalize(new Vector2(diffX, diffY));
                 speed = Vector2.Multiply(speed, particleSpeed);
 
+                Texture2D tex = textures[rand.Next()%textures.Count];
+
                 m_particles.Add(new Particle(tex, new Vector2(partX, partY), speed, particleWidth, particleLifetime));
             }
 
@@ -160,6 +193,8 @@ namespace CS5410.Systems
 
                 Vector2 speed = Vector2.Normalize(new Vector2(diffX, diffY));
                 speed = Vector2.Multiply(speed, particleSpeed);
+
+                Texture2D tex = textures[rand.Next()%textures.Count];
 
                 m_particles.Add(new Particle(tex, new Vector2(partX, partY), speed, particleWidth, particleLifetime));
             }
@@ -176,6 +211,8 @@ namespace CS5410.Systems
                 Vector2 speed = Vector2.Normalize(new Vector2(diffX, diffY));
                 speed = Vector2.Multiply(speed, particleSpeed);
 
+                Texture2D tex = textures[rand.Next()%textures.Count];
+
                 m_particles.Add(new Particle(tex, new Vector2(partX, partY), speed, particleWidth, particleLifetime));
             }
         }
@@ -185,19 +222,15 @@ namespace CS5410.Systems
             // add particles based on player death
             // do this by adding particles around the square that is kill
 
-            Texture2D tex = new Texture2D(m_graphics, 1, 1);
-            tex.SetData(new[] {Color.Red});
+            Color[] colors = new Color[]{Color.DarkBlue, Color.White, Color.LightBlue};
 
-            addParticlesAroundSquare(x, y, tex);
+            addParticlesAroundSquare(x, y, colors);
         }
 
         public void changeIsYou(Components.Objects newYou)
         {
             // add particles for changed 'IS YOU' rule
             // do this by adding particles around the square that is now YOU
-
-            Texture2D tex = new Texture2D(m_graphics, 1, 1);
-            tex.SetData(new[] {Color.White});
 
             foreach (var entity in m_entities.Values)
             {
@@ -207,7 +240,9 @@ namespace CS5410.Systems
                 {
                     var pos = entity.GetComponent<Components.Position>().CurrentPosition;
 
-                    addParticlesAroundSquare(pos.Item1, pos.Item2, tex);
+                    Color[] colors = new Color[]{Color.White, Color.LightGreen, Color.Cyan, Color.LightBlue, Color.Aqua};
+
+                    addParticlesAroundSquare(pos.Item1, pos.Item2, colors);
                 }
             }
         }
@@ -217,9 +252,6 @@ namespace CS5410.Systems
             // add particles for changed 'IS WIN' rule
             // do this by adding particles around the square that is now WIN
 
-            Texture2D tex = new Texture2D(m_graphics, 1, 1);
-            tex.SetData(new[] {Color.Gold});
-
             foreach (var entity in m_entities.Values)
             {
                 var noun = entity.GetComponent<Components.Noun>();
@@ -228,7 +260,9 @@ namespace CS5410.Systems
                 {
                     var pos = entity.GetComponent<Components.Position>().CurrentPosition;
 
-                    addParticlesAroundSquare(pos.Item1, pos.Item2, tex);
+                    Color[] colors = new Color[]{Color.White, Color.Gold, Color.Yellow, Color.Orange, Color.LightPink};
+
+                    addParticlesAroundSquare(pos.Item1, pos.Item2, colors);
                 }
             }
         }

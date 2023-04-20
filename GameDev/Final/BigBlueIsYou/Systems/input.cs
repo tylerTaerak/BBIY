@@ -1,7 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 
 namespace CS5410.Systems
 {
@@ -13,16 +12,12 @@ namespace CS5410.Systems
         Right,
         Undo,
         Reset,
-        Return,
-        Confirm
     }
 
     // configure to be serializable using the keymap
-    [DataContract(Name = "InputSystem")]
     public class InputSystem : System
     {
         // serialize the keymap
-        [DataMember()]
         public static Dictionary<Keys, Commands> s_keyCommands;
 
         private List<Keys> m_keyPresses;
@@ -43,13 +38,6 @@ namespace CS5410.Systems
 
         /* public flag indicating new move - turned false by GameState */
         public bool NewMove
-        {
-            get;
-            set;
-        }
-
-        /* public flag indicating to return to menu */
-        public bool ReturnToMenu
         {
             get;
             set;
@@ -84,10 +72,6 @@ namespace CS5410.Systems
                         if (s_keyCommands[k] == Commands.Reset)
                         {
                             Reset = true;
-                        }
-                        if (s_keyCommands[k] == Commands.Return)
-                        {
-                            ReturnToMenu = true;
                         }
 
                         moveEntities(k);

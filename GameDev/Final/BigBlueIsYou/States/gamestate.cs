@@ -1,6 +1,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
 using System.Collections.Generic;
 using System;
 
@@ -24,7 +27,11 @@ namespace CS5410.States
         private Systems.RenderAnimatedSystem m_renderSprites;
         private Systems.RenderParticleSystem m_particles;
 
-        private TimeSpan m_helpMessage;
+        /* sounds */
+        private SoundEffect m_moveSE;
+        private SoundEffect m_winSE;
+        private SoundEffect m_changeWinSE;
+        private Song m_song;
 
         private List<uint> m_remove;
 
@@ -51,14 +58,15 @@ namespace CS5410.States
             m_rules = new Systems.RulesSystem();
             m_input = new Systems.InputSystem();
 
-            m_renderSprites = new Systems.RenderAnimatedSystem(map[0].Length);
-            m_renderSprites.initialize(graphicsDevice, graphics);
 
             m_particles = new Systems.RenderParticleSystem(map[0].Length);
             m_particles.initialize(graphicsDevice, graphics);
 
             m_apply = new Systems.RuleApplicatorSystem(m_rules, m_particles);
             m_collision = new Systems.CollisionSystem(m_remove, m_particles);
+
+            m_renderSprites = new Systems.RenderAnimatedSystem(map[0].Length, m_collision);
+            m_renderSprites.initialize(graphicsDevice, graphics);
 
             for (var j=0; j<map.Length/2; j++)
             {
@@ -77,6 +85,16 @@ namespace CS5410.States
         {
 
             m_renderSprites.loadContent(content); // load content
+
+            m_moveSE = content.Load<SoundEffect>("sounds/move");
+
+            m_winSE = content.Load<SoundEffect>("sounds/win");
+            m_changeWinSE = content.Load<SoundEffect>("sounds/changeWin");
+
+            m_collision.WinSound = m_winSE;
+            m_apply.ChangeWin = m_changeWinSE;
+
+            m_song = content.Load<Song>("sounds/soundtrack");
         }
 
         public void reset(GameTime gameTime)
@@ -90,16 +108,22 @@ namespace CS5410.States
             Systems.System.ReadFromCopy(first, m_rules, m_input, m_renderSprites, m_particles, m_apply, m_collision);
             m_moves.Clear();
             m_moves.Push(Systems.System.Copy(m_rules, m_input, m_renderSprites, m_particles, m_apply, m_collision));
+
+            m_collision.Win = false;
+
+            MediaPlayer.Play(m_song);
         }
 
         public GameStateType processInput(GameTime gameTime)
         {
-            m_input.update(gameTime);
-
-            if (m_input.ReturnToMenu)
+            if (!m_collision.Win)
             {
-                Console.WriteLine("Returning to Menu");
-                m_input.ReturnToMenu = false;
+                m_input.update(gameTime);
+            }
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            {
+                MediaPlayer.Stop();
                 return GameStateType.MainMenu;
             }
 
@@ -127,6 +151,8 @@ namespace CS5410.States
             {
                 m_moves.Push(Systems.System.Copy(m_rules, m_input, m_renderSprites, m_particles, m_apply, m_collision));
                 m_input.NewMove = false;
+
+                m_moveSE.Play(); // play a sound for each move
             }
 
             if (m_input.Undo)

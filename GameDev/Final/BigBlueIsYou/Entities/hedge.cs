@@ -9,9 +9,14 @@ namespace CS5410.Entities
             hedge.AddComponents(
                     new Components.Noun(Components.Objects.Hedge),
                     new Components.Position(x, y),
-                    new Components.Sprite(),
+                    new Components.Sprite(Components.RenderLayer.Middle),
                     new Components.Property()
                     );
+
+            var props = hedge.GetComponent<Components.Property>();
+
+            // hedges act as boundaries, therefore, use as stop
+            props.Add(Components.Properties.Stop);
 
             return hedge;
         }

@@ -72,21 +72,20 @@ namespace CS5410.States
             {
                 if (!m_keyPresses.Contains(k))
                 {
-                    switch(Systems.InputSystem.s_keyCommands[k])
+                    switch(k)
                     {
-                        case Systems.Commands.Up:
+                        case Keys.Up:
                             m_choice = Math.Max(--m_choice, 0);
                             break;
-                        case Systems.Commands.Down:
-                            m_choice = Math.Min(++m_choice, m_options.Count-1);
+                        case Keys.Down:
+                                m_choice = Math.Min(++m_choice, m_options.Count-1);
                             break;
-                        case Systems.Commands.Confirm:
-                            if (m_options[m_choice].Item2 == GameStateType.Level)
+                        case Keys.Enter:
+                             if (m_options[m_choice].Item2 == GameStateType.Level)
                             {
                                 Level = s_levels[m_choice];
                             }
                             return m_options[m_choice].Item2;
-
                     }
                 }
             }

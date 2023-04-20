@@ -1,67 +1,64 @@
 using System.IO;
 using System.IO.IsolatedStorage;
-using System.Runtime.Serialization.Json;
+using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Input;
 
 namespace CS5410
 {
     public static class LoadInput
     {
-        public static async void LoadInputMap()
+        public static bool s_saving
         {
-            await Task.Run(() =>
-                {
-                    using (IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForApplication())
-                    {
-                        try
-                        {
-                            if (storage.FileExists("InputMap.json"))
-                            {
-                                using (IsolatedStorageFileStream fs = storage.OpenFile("InputMap.json", FileMode.Open))
-                                {
-                                    if (fs != null)
-                                    {
-                                        DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(Systems.InputSystem));
-                                        ser.ReadObject(fs); // since the keymap is a static object, we don't actually need to do anything with the object here
-
-                                    }
-                                }
-                            }
-                        }
-
-                        catch (IsolatedStorageException)
-                        {
-                            // don't do anything, the file wasn't found
-                        }
-                    }
-                }
-            );
+            get;
+            set;
         }
 
-        public static async void SaveInputMap(Systems.InputSystem sys)
+        public static async void LoadInputMap()
         {
-            await Task.Run(() =>
+            using (IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                using (IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForApplication())
+                try
                 {
-                    try
+                    if (storage.FileExists("InputMap.json"))
                     {
-                        using (IsolatedStorageFileStream fs = storage.OpenFile("InputMap.json", FileMode.Create))
+                        using (IsolatedStorageFileStream fs = storage.OpenFile("InputMap.json", FileMode.Open))
                         {
                             if (fs != null)
                             {
-                                DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(Systems.InputSystem));
-                                ser.WriteObject(fs, sys);
+                                Systems.InputSystem.s_keyCommands = await JsonSerializer.DeserializeAsync<Dictionary<Keys, Systems.Commands>>(fs);
                             }
                         }
                     }
-                    catch (IsolatedStorageException)
-                    {
-                        // do nothing
-                    }
+                }
+                catch (IsolatedStorageException)
+                {
+                    // do nothing
                 }
             }
-            );
+        }
+
+        public static async Task SaveInputMap()
+        {
+            using (IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                try
+                {
+                    using (IsolatedStorageFileStream fs = storage.OpenFile("InputMap.json", FileMode.Create))
+                    {
+                        if (fs != null)
+                        {
+                            await JsonSerializer.SerializeAsync(fs, Systems.InputSystem.s_keyCommands);
+                        }
+                    }
+                }
+
+                catch (IsolatedStorageException)
+                {
+                    // do nothing
+                }
+            }
         }
     }
 }

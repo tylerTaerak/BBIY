@@ -16,6 +16,10 @@ namespace CS5410.States
         private List<Keys> m_choices;
         private int m_currChoice;
 
+        private bool m_waitForChanges;
+        private bool m_changeComplete;
+        private bool m_printSuccess;
+
         public List<Keys> m_keyPresses;
 
         public int m_windowWidth;
@@ -25,6 +29,8 @@ namespace CS5410.States
         {
             m_windowWidth = graphics.PreferredBackBufferWidth;
             m_windowHeight = graphics.PreferredBackBufferHeight;
+            m_keyPresses = new List<Keys>();
+            m_keyPresses.Add(Keys.Enter);
         }
 
         public void loadContent(ContentManager content)
@@ -35,6 +41,10 @@ namespace CS5410.States
 
         public void reset(GameTime gameTime)
         {
+            m_changeComplete = false;
+            m_waitForChanges = false;
+            m_printSuccess = false;
+
             m_currChoice = 0;
             m_choices = new List<Keys>();
 
@@ -56,25 +66,55 @@ namespace CS5410.States
             {
                 if (!m_keyPresses.Contains(k))
                 {
-                    switch(Systems.InputSystem.s_keyCommands[k])
+                    if (m_waitForChanges)
                     {
-                        case Systems.Commands.Up:
-                            m_currChoice = Math.Max(--m_currChoice, 0);
-                            break;
-                        case Systems.Commands.Down:
-                            m_currChoice = Math.Min(++m_currChoice, m_choices.Count-1);
-                            break;
-                        case Systems.Commands.Confirm:
-                            // apply changes to input map
-                            Systems.InputSystem.s_keyCommands.Clear();
-                            foreach(var kv in m_tempMap)
-                            {
-                                Systems.InputSystem.s_keyCommands.Add(kv.Key, kv.Value);
-                            }
-                            break;
-                        case Systems.Commands.Return:
-                            return GameStateType.MainMenu;
+                        Keys prevKey = m_choices[m_currChoice];
+                        Systems.Commands prevCmd = m_tempMap[prevKey];
 
+                        m_tempMap.Remove(prevKey);
+
+                        // what to do if the player chooses a key that's already been mapped?
+                        if (m_tempMap.ContainsKey(k))
+                        {
+                            var otherCmd = m_tempMap[k];
+                            int index = m_choices.IndexOf(k);
+                            m_choices[index] = Keys.None;
+                            m_tempMap.Remove(k);
+                            m_tempMap.Add(Keys.None, otherCmd);
+                        }
+
+                        m_choices[m_currChoice] = k;
+
+
+                        m_tempMap.Add(k, prevCmd);
+
+                        m_changeComplete = true;
+                    }
+                    else
+                    {
+                        switch(k)
+                        {
+                            case Keys.Up:
+                                m_currChoice = Math.Max(--m_currChoice, 0);
+                                break;
+                            case Keys.Down:
+                                m_currChoice = Math.Min(++m_currChoice, m_choices.Count);
+                                break;
+                            case Keys.Enter:
+                                if (m_currChoice == m_choices.Count)
+                                {
+                                    Systems.InputSystem.s_keyCommands = m_tempMap;
+                                    m_printSuccess = true;
+                                }
+                                else
+                                {
+                                    m_waitForChanges = true;
+                                    m_changeComplete = false;
+                                }
+                                break;
+                            case Keys.Escape:
+                                return GameStateType.MainMenu;
+                        }
                     }
                 }
             }
@@ -103,7 +143,7 @@ namespace CS5410.States
 
             float spacing = 40 + m_largeFont.MeasureString("Controls").Y + 40;
 
-            string s = String.Format("{0} : {1,-8}", "Key", "Command");
+            string s = String.Format("{0,-8} : {1,-8}", "Key", "Command");
             spriteBatch.DrawString(
                     m_mainFont,
                     s,
@@ -114,10 +154,46 @@ namespace CS5410.States
                     Color.White
                     );
 
+            spacing += m_mainFont.MeasureString(s).Y + 20;
+
+            if (m_waitForChanges)
+            {
+                spriteBatch.DrawString(
+                        m_mainFont,
+                        "Press a key to change to",
+                        new Vector2(
+                            m_windowWidth / 2 - m_mainFont.MeasureString("Press a key to change to").X/2,
+                            spacing
+                            ),
+                        Color.Gold
+                        );
+                if (m_changeComplete)
+                {
+                    m_waitForChanges = false;
+                }
+
+            }
+
+            if (m_printSuccess)
+            {
+                spriteBatch.DrawString(
+                        m_mainFont,
+                        "Controls Changed Successfully",
+                        new Vector2(
+                            m_windowWidth / 2 - m_mainFont.MeasureString("Controls Changed Successfully").X/2,
+                            m_windowHeight - 40 - m_mainFont.MeasureString("Controls Changed Successfully").Y
+                            ),
+                        Color.Gold
+                        );
+            }
+
+            spacing += m_mainFont.MeasureString("Press a key to change to").Y + 20;
+
+
             int count = 0;
             foreach (var kv in m_tempMap)
             {
-                s = String.Format("{0} : {1,-8}", Enum.GetName(typeof(Keys), kv.Key), Enum.GetName(typeof(Systems.Commands), kv.Value));
+                s = String.Format("{0,-8} : {1,-8}", Enum.GetName(typeof(Keys), kv.Key), Enum.GetName(typeof(Systems.Commands), kv.Value));
                 spriteBatch.DrawString(
                         m_mainFont,
                         s,
@@ -125,11 +201,21 @@ namespace CS5410.States
                             m_windowWidth / 2 - m_mainFont.MeasureString(s).X / 2,
                             spacing
                             ),
-                        m_currChoice == count ? Color.Gold : Color.White
+                        m_currChoice == count++ ? Color.Gold : Color.White
                         );
 
                 spacing += m_mainFont.MeasureString(s).Y + 20;
             }
+
+            spriteBatch.DrawString(
+                    m_mainFont,
+                    "Apply Changes",
+                    new Vector2(
+                        m_windowWidth / 2 - m_mainFont.MeasureString("Apply Changes").X/2,
+                        spacing
+                        ),
+                    m_currChoice == count ? Color.Gold : Color.White
+                    );
         }
     }
 }

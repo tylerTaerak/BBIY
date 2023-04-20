@@ -9,7 +9,7 @@ namespace CS5410.Entities
             grass.AddComponents(
                     new Components.Noun(Components.Objects.Grass),
                     new Components.Position(x, y),
-                    new Components.Sprite(),
+                    new Components.Sprite(Components.RenderLayer.Bottom),
                     new Components.Property()
                     );
 

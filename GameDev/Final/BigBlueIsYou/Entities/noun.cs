@@ -9,7 +9,7 @@ namespace CS5410.Entities
             word.AddComponents(
                     new Components.Text(text),
                     new Components.Position(x, y),
-                    new Components.Sprite(),
+                    new Components.Sprite(Components.RenderLayer.Middle),
                     new Components.Property()
                     );
 
