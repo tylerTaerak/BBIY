@@ -45,5 +45,12 @@ namespace CS5410.Components
         {
             GameProperties &= 0;
         }
+
+        public override Property Copy()
+        {
+            var newProp = new Property();
+            newProp.GameProperties = this.GameProperties;
+            return newProp;
+        }
     }
 }

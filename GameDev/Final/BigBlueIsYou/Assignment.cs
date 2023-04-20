@@ -26,7 +26,7 @@ namespace CS5410
         protected override void Initialize()
         {
             /* Set Graphics Settings */
-            // something's not working quite right here... Maybe it's just Hyprland though
+            // something's not working quite right here... Maybe it's just Hyprland though (twas)
             m_graphics.PreferredBackBufferWidth = 1920;
             m_graphics.PreferredBackBufferHeight = 1080;
             m_graphics.ApplyChanges();
@@ -42,6 +42,21 @@ namespace CS5410
             m_states.Add(States.GameStateType.Level4, new States.GameState(4, States.GameStateType.Level4));
             m_states.Add(States.GameStateType.Level5, new States.GameState(5, States.GameStateType.Level5));
             m_states.Add(States.GameStateType.Controls, new States.ControlsState());
+
+            // define default keymap for input
+            Dictionary<Keys, Systems.Commands> keys = new Dictionary<Keys, Systems.Commands>();
+            keys.Add(Keys.Up, Systems.Commands.Up);
+            keys.Add(Keys.Down, Systems.Commands.Down);
+            keys.Add(Keys.Left, Systems.Commands.Left);
+            keys.Add(Keys.Right, Systems.Commands.Right);
+            keys.Add(Keys.Z, Systems.Commands.Undo);
+            keys.Add(Keys.R, Systems.Commands.Reset);
+            keys.Add(Keys.Escape, Systems.Commands.Return);
+
+            Systems.InputSystem.s_keyCommands = keys;
+
+            LoadInput.LoadInputMap(); // override with user-defined keymap
+
 
             foreach (var i in m_states.Values)
             {
@@ -66,11 +81,6 @@ namespace CS5410
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            {
-                Exit();
-            }
-
             if (m_currState != States.GameStateType.Quit)
             {
                 m_currState = m_states[m_currState].processInput(gameTime);

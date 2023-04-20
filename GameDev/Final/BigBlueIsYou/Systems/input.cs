@@ -1,13 +1,58 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
-using System;
+using System.Runtime.Serialization;
 
 namespace CS5410.Systems
 {
+    public enum Commands:uint
+    {
+        Up,
+        Down,
+        Left,
+        Right,
+        Undo,
+        Reset,
+        Return
+    }
+
+    // configure to be serializable using the keymap
+    [DataContract(Name = "InputSystem")]
     public class InputSystem : System
     {
+        // serialize the keymap
+        [DataMember()]
+        public static Dictionary<Keys, Commands> s_keyCommands;
+
         private List<Keys> m_keyPresses;
+
+        /* public flag to undo previous move - turned false by GameState */
+        public bool Undo
+        {
+            get;
+            set;
+        }
+
+        /* public flag to reset level - turned false by GameState */
+        public bool Reset
+        {
+            get;
+            set;
+        }
+
+        /* public flag indicating new move - turned false by GameState */
+        public bool NewMove
+        {
+            get;
+            set;
+        }
+
+        /* public flag indicating to return to menu */
+        public bool ReturnToMenu
+        {
+            get;
+            set;
+        }
 
         public InputSystem()
             : base(
@@ -16,6 +61,8 @@ namespace CS5410.Systems
                   )
         {
             m_keyPresses = new List<Keys>();
+            Undo = false;
+            Reset = false;
         }
 
         public override void update(GameTime gameTime)
@@ -23,25 +70,27 @@ namespace CS5410.Systems
             List<Keys> keysPressed = new List<Keys>();
             keysPressed.AddRange(Keyboard.GetState().GetPressedKeys());
 
-            bool undo = false;
-
             foreach (Keys k in keysPressed)
             {
                 if (!m_keyPresses.Contains(k))
                 {
-                    // remember---- configurable!!!
-                    if (k == Keys.Z)
+                    if (s_keyCommands.ContainsKey(k))
                     {
-                        undo = true;
+                        if (s_keyCommands[k] == Commands.Undo)
+                        {
+                            Undo = true;
+                        }
+                        if (s_keyCommands[k] == Commands.Reset)
+                        {
+                            Reset = true;
+                        }
+                        if (s_keyCommands[k] == Commands.Return)
+                        {
+                            ReturnToMenu = true;
+                        }
+
+                        moveEntities(k);
                     }
-
-                    moveEntities(k);
-                }
-
-
-                if (undo)
-                {
-                    // undo a move
                 }
             }
 
@@ -68,21 +117,25 @@ namespace CS5410.Systems
                 //
                 // NOTE: Keys are user-configurable, so make sure to implement that here
                 //
-                switch (keypress)
+                switch (s_keyCommands[keypress])
                 {
-                    case Keys.Up:
+                    case Commands.Up:
+                        NewMove = true;
                         pos.Facing = Components.Direction.Up;
                         y -= 1;
                         break;
-                    case Keys.Down:
+                    case Commands.Down:
+                        NewMove = true;
                         pos.Facing = Components.Direction.Down;
                         y += 1;
                         break;
-                    case Keys.Left:
+                    case Commands.Left:
+                        NewMove = true;
                         pos.Facing = Components.Direction.Left;
                         x -= 1;
                         break;
-                    case Keys.Right:
+                    case Commands.Right:
+                        NewMove = true;
                         pos.Facing = Components.Direction.Right;
                         x += 1;
                         break;

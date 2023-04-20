@@ -55,6 +55,19 @@ namespace CS5410.Entities
             }
         }
 
+        public Entity Copy()
+        {
+            Entity newEnt = new Entity();
+            newEnt.Id = this.Id;
+
+            foreach (var comp in this.components.Values)
+            {
+                newEnt.AddComponents(comp.Copy());
+            }
+
+            return newEnt;
+        }
+
         public TComponent GetComponent<TComponent>()
             where TComponent : Components.Component
         {

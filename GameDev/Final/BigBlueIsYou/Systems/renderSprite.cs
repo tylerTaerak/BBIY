@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using System;
 
@@ -14,10 +15,24 @@ namespace CS5410.Systems
         private const int m_timer = 500; /* how long to stay in a frame of animation */
         private const int m_pixelsPerCoord = 24; /* how many pixels per space */
 
-        public RenderAnimatedSystem()
+        private int m_windowWidth;
+        private int m_windowHeight;
+
+        private int m_mapDim;
+
+        private SpriteFont m_font; // for showing instructions at bottom of screen
+
+        public RenderAnimatedSystem(int dim)
             :base(
                  )
         {
+            m_mapDim = dim; // grid size of level
+        }
+
+        public void initialize(GraphicsDevice graphicsDevice, GraphicsDeviceManager graphics)
+        {
+            m_windowWidth = graphics.PreferredBackBufferWidth;
+            m_windowHeight = graphics.PreferredBackBufferHeight;
         }
 
         protected override bool IsInterested(Entities.Entity entity)
@@ -96,6 +111,8 @@ namespace CS5410.Systems
             m_wordSpriteMap.Add("water", (new Sprites.AnimatedSprite(wwater, new int[] {m_timer, m_timer, m_timer}), Color.White));
             m_wordSpriteMap.Add("win", (new Sprites.AnimatedSprite(wwin, new int[] {m_timer, m_timer, m_timer}), Color.Gold));
             m_wordSpriteMap.Add("you", (new Sprites.AnimatedSprite(wyou, new int[] {m_timer, m_timer, m_timer}), Color.Lime));
+
+            m_font = content.Load<SpriteFont>("fonts/Main");
         }
 
         public override void update(GameTime gameTime)
@@ -114,6 +131,9 @@ namespace CS5410.Systems
 
         public void render(SpriteBatch spriteBatch)
         {
+            var xOffset = m_windowWidth / 2 - (m_mapDim * 40) / 2;
+            var yOffset = m_windowHeight / 2 - (m_mapDim * 40) / 2;
+
             foreach(Entities.Entity entity in m_entities.Values)
             {
                 Sprites.AnimatedSprite sprite;
@@ -131,11 +151,51 @@ namespace CS5410.Systems
                     color = m_wordSpriteMap[text.Word].Item2;
                 }
 
+
                 var pos = entity.GetComponent<Components.Position>();
                 var (x, y) = pos.CurrentPosition;
 
-                sprite.render(spriteBatch, x, y, color);
+                sprite.render(spriteBatch, xOffset, yOffset, x, y, color);
             }
+
+            // instruction for undo
+            string undoKey = Enum.GetName(typeof(Keys), Keys.Z);
+            string undoInst = $"{undoKey}: Undo";
+            spriteBatch.DrawString(
+                    m_font,
+                    undoInst,
+                    new Vector2(
+                        m_windowWidth / 4 - m_font.MeasureString(undoInst).X/2,
+                        m_windowHeight - m_windowHeight / 20
+                        ),
+                    Color.White
+                    );
+
+            // instruction to reset
+            string resetKey = Enum.GetName(typeof(Keys), Keys.R);
+            string resetInst = $"{resetKey}: Reset";
+            spriteBatch.DrawString(
+                    m_font,
+                    resetInst,
+                    new Vector2(
+                        m_windowWidth / 2 - m_font.MeasureString(resetInst).X/2,
+                        m_windowHeight - m_windowHeight / 20
+                        ),
+                    Color.White
+                    );
+
+            // instruction to leave to menu
+            string menuKey = Enum.GetName(typeof(Keys), Keys.Escape);
+            string menuInst = $"{menuKey}: Return to Menu";
+            spriteBatch.DrawString(
+                    m_font,
+                    menuInst,
+                    new Vector2(
+                        3 * m_windowWidth / 4 - m_font.MeasureString(menuInst).X/2,
+                        m_windowHeight - m_windowHeight / 20
+                        ),
+                    Color.White
+                    );
         }
     }
 }

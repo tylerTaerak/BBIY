@@ -70,16 +70,15 @@ namespace CS5410.Systems
         }
 
         private List<Particle> m_particles;
-        private int m_offsetPixelsX;
-        private int m_offsetPixelsY;
         private int m_nodeWidth;
+        private int m_mapDim;
 
         private int m_windowWidth;
         private int m_windowHeight;
 
         private GraphicsDevice m_graphics;
 
-        public RenderParticleSystem(int offsetX, int offsetY)
+        public RenderParticleSystem(int mapDim)
             : base(
                     typeof(Components.Noun),
                     typeof(Components.Position)
@@ -87,10 +86,9 @@ namespace CS5410.Systems
         {
             m_particles = new List<Particle>();
 
-            m_offsetPixelsX = offsetX;
-            m_offsetPixelsY = offsetY;
+            m_mapDim = mapDim;
 
-            m_nodeWidth = 20; // 20 pixels per space
+            m_nodeWidth = 40; // 40 pixels per space
         }
 
         public void initialize(GraphicsDevice graphicsDevice, GraphicsDeviceManager graphics)
@@ -103,9 +101,11 @@ namespace CS5410.Systems
 
         private void addParticlesAroundSquare(int x, int y, Texture2D tex)
         {
+            var xOffset = m_windowWidth / 2 - (m_mapDim * 40) / 2;
+            var yOffset = m_windowHeight / 2 - (m_mapDim * 40) / 2;
             // upper left corner of square
-            int xPixels = m_offsetPixelsX + m_nodeWidth * x;
-            int yPixels = m_offsetPixelsY + m_nodeWidth * y;
+            int xPixels = xOffset + m_nodeWidth * x;
+            int yPixels = yOffset + m_nodeWidth * y;
 
             int numPixels = 100;
             int numPixelsPerSide = numPixels / 4; // 4 sides on a square

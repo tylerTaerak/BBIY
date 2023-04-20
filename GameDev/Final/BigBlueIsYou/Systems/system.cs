@@ -54,6 +54,40 @@ namespace CS5410.Systems
             return m_entities.Remove(id);
         }
 
+        /* clear all entities */
+        public void Clear()
+        {
+            m_entities.Clear();
+        }
+
+        public static void ReadFromCopy(Dictionary<uint, Entities.Entity> entities, params System[] sys)
+        {
+            foreach (System s in sys)
+            {
+                s.Clear();
+
+                foreach (Entities.Entity entity in entities.Values)
+                {
+                    s.Add(entity);
+                }
+            }
+        }
+
+        public static Dictionary<uint, Entities.Entity> Copy(params System[] systems)
+        {
+            Dictionary<uint, Entities.Entity> newEntities = new Dictionary<uint, Entities.Entity>();
+            foreach (System sys in systems)
+            {
+                // copy each entity, not overriding any
+                foreach (Entities.Entity entity in sys.m_entities.Values)
+                {
+                    newEntities.TryAdd(entity.Id, entity.Copy());
+                }
+            }
+
+            return newEntities;
+        }
+
         /* abstract method for updating each game loop */
         public abstract void update(GameTime gameTime);
     }

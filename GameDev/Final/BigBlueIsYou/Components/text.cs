@@ -12,5 +12,11 @@ namespace CS5410.Components
         {
             Word = text;
         }
+
+        public override Text Copy()
+        {
+            var newText = new Text(this.Word);
+            return newText;
+        }
     }
 }

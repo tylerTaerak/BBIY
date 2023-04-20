@@ -13,7 +13,7 @@ namespace CS5410.Sprites
         private int m_subImageIndex;
         private int m_subImageWidth;
 
-        private const int idxPerPixel = 20;
+        private const int idxPerPixel = 40;
 
         public AnimatedSprite(Texture2D spriteSheet, int[] spriteTime)
         {
@@ -33,12 +33,12 @@ namespace CS5410.Sprites
             }
         }
 
-        public void render(SpriteBatch spritebatch, int x, int y, Color color)
+        public void render(SpriteBatch spritebatch, int xOffset, int yOffset, int x, int y, Color color)
         {
             // I don't think we need the overloaded one for this game
             spritebatch.Draw(
                     m_spriteSheet,
-                    new Rectangle(idxPerPixel * x, idxPerPixel * y, idxPerPixel, idxPerPixel), // coordinates
+                    new Rectangle(xOffset + idxPerPixel * x, yOffset + idxPerPixel * y, idxPerPixel, idxPerPixel), // coordinates
                     new Rectangle(m_subImageIndex * m_subImageWidth, 0, m_subImageWidth, m_spriteSheet.Height), // subtexture
                     color
                     );

@@ -2,10 +2,9 @@ namespace CS5410.Components
 {
     public class Sprite : Component
     {
-        public Sprites.AnimatedSprite Renderer
+        public override Sprite Copy()
         {
-            get;
-            set;
+            return new Sprite();
         }
     }
 }

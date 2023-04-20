@@ -1,7 +1,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
+using System;
 
 namespace CS5410.States
 {
@@ -14,6 +16,7 @@ namespace CS5410.States
     {
         private int m_levelIndex;
         private GameStateType m_level;
+        private Stack<Dictionary<uint, Entities.Entity>> m_moves;
 
         /* systems */
         private Systems.RulesSystem m_rules;
@@ -23,6 +26,8 @@ namespace CS5410.States
         private Systems.RenderAnimatedSystem m_renderSprites;
         private Systems.RenderParticleSystem m_particles;
 
+        private TimeSpan m_helpMessage;
+
         private List<uint> m_remove;
 
         public GameState(int levelIndex, GameStateType levelId)
@@ -31,21 +36,25 @@ namespace CS5410.States
             m_level = levelId;
 
             m_remove = new List<uint>();
+            m_moves = new Stack<Dictionary<uint, Entities.Entity>>();
         }
 
         public void initialize(GraphicsDevice graphicsDevice, GraphicsDeviceManager graphics)
         {
+            // load level at level index
+            var (title, map) = Load.loadLevels(m_levelIndex);
+
             m_rules = new Systems.RulesSystem();
             m_input = new Systems.InputSystem();
-            m_particles = new Systems.RenderParticleSystem(100, 100);
+
+            m_renderSprites = new Systems.RenderAnimatedSystem(map[0].Length);
+            m_renderSprites.initialize(graphicsDevice, graphics);
+
+            m_particles = new Systems.RenderParticleSystem(map[0].Length);
             m_particles.initialize(graphicsDevice, graphics);
 
             m_apply = new Systems.RuleApplicatorSystem(m_rules, m_particles);
             m_collision = new Systems.CollisionSystem(m_remove, m_particles);
-            m_renderSprites = new Systems.RenderAnimatedSystem();
-
-            // load level at level index
-            var (title, map) = Load.loadLevels(m_levelIndex);
 
             for (var j=0; j<map.Length/2; j++)
             {
@@ -55,6 +64,9 @@ namespace CS5410.States
                     AddEntity(map[j+map.Length/2].ToCharArray()[i], i, j);
                 }
             }
+
+            // add initial state to move list
+            m_moves.Push(Systems.System.Copy(m_rules, m_input, m_renderSprites, m_particles, m_apply, m_collision));
         }
 
         public void loadContent(ContentManager content)
@@ -65,16 +77,32 @@ namespace CS5410.States
 
         public void reset(GameTime gameTime)
         {
+            // clear list, and add just the initial state back into the move list
+            while (m_moves.Count > 1)
+            {
+                m_moves.Pop();
+            }
+            var first = m_moves.Pop();
+            Systems.System.ReadFromCopy(first, m_rules, m_input, m_renderSprites, m_particles, m_apply, m_collision);
+            m_moves.Clear();
+            m_moves.Push(Systems.System.Copy(m_rules, m_input, m_renderSprites, m_particles, m_apply, m_collision));
         }
 
         public GameStateType processInput(GameTime gameTime)
         {
+            m_input.update(gameTime);
+
+            if (m_input.ReturnToMenu)
+            {
+                m_input.ReturnToMenu = false;
+                return GameStateType.MainMenu;
+            }
+
             return m_level;
         }
 
         public void update(GameTime gameTime)
         {
-            m_input.update(gameTime);
             m_collision.update(gameTime);
 
             m_rules.update(gameTime);
@@ -82,11 +110,38 @@ namespace CS5410.States
 
             foreach (var entity in m_remove)
             {
+
                 RemoveEntity(entity);
             }
+            m_remove.Clear();
 
             m_renderSprites.update(gameTime);
             m_particles.update(gameTime);
+
+            if (m_input.NewMove)
+            {
+                m_moves.Push(Systems.System.Copy(m_rules, m_input, m_renderSprites, m_particles, m_apply, m_collision));
+                m_input.NewMove = false;
+            }
+
+            if (m_input.Undo)
+            {
+                if (m_moves.Count > 1)
+                {
+                    m_moves.Pop();
+                }
+                var last = m_moves.Peek();
+                Systems.System.ReadFromCopy(last, m_rules, m_input, m_renderSprites, m_particles, m_apply, m_collision);
+                m_input.Undo = false;
+            }
+
+
+            if (m_input.Reset)
+            {
+                this.reset(gameTime);
+                m_input.Reset = false;
+            }
+
         }
 
         public void render(SpriteBatch spriteBatch)
@@ -175,9 +230,8 @@ namespace CS5410.States
                 m_input.Add(e);
                 m_collision.Add(e);
                 m_renderSprites.Add(e);
+                m_particles.Add(e);
             }
-
-
         }
 
         private void RemoveEntity(uint id)

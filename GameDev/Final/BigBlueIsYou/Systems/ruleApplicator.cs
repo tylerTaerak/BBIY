@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using System;
 
 namespace CS5410.Systems
 {
@@ -11,8 +12,8 @@ namespace CS5410.Systems
         private RulesSystem m_rules;
         private RenderParticleSystem m_particles;
 
-        private List<Rule> m_youRules;
-        private List<Rule> m_winRules;
+        private Components.Objects? m_you; // can be null when starting
+        private Components.Objects? m_win; // can be null when starting
 
         public RuleApplicatorSystem(RulesSystem rules, RenderParticleSystem particles)
             : base(
@@ -42,8 +43,8 @@ namespace CS5410.Systems
             m_rules = rules;
             m_particles = particles;
 
-            m_youRules = new List<Rule>();
-            m_winRules = new List<Rule>();
+            m_you = null;
+            m_win = null;
         }
 
         public override void update(GameTime gameTime)
@@ -84,18 +85,28 @@ namespace CS5410.Systems
                        // apply new Property
                        if (m_propertyNames[rule.Application] == Components.Properties.You)
                        {
-                           if (!m_youRules.Contains(rule) && m_youRules.Count != 0)
+                           if (m_you == null)
                            {
-                               // particles for changing you
-                               m_particles.changeIsYou(m_objectNames[rule.Noun]);
+                                m_you = m_objectNames[rule.Noun];
                            }
+                           else if (m_objectNames[rule.Noun] != m_you.Value)
+                           {
+                               m_you = m_objectNames[rule.Noun];
+                               m_particles.changeIsYou(m_you.Value);
+                           }
+
                        }
                        if (m_propertyNames[rule.Application] == Components.Properties.Win)
                        {
-                           if (!m_winRules.Contains(rule))
+                           if (m_win == null)
                            {
-                               // particles for changing win
-                               m_particles.changeIsWin(m_objectNames[rule.Noun]);
+                               m_win = m_objectNames[rule.Noun];
+                               m_particles.changeIsWin(m_win.Value);
+                           }
+                           if (m_objectNames[rule.Noun] != m_win.Value)
+                           {
+                               m_win = m_objectNames[rule.Noun];
+                               m_particles.changeIsWin(m_win.Value);
                            }
                        }
                        comp.Add(m_propertyNames[rule.Application]);

@@ -25,5 +25,12 @@ namespace CS5410.Components
         {
             Object = obj;
         }
+
+        public override Noun Copy()
+        {
+            var newNoun = new Noun(this.Object);
+
+            return newNoun;
+        }
     }
 }

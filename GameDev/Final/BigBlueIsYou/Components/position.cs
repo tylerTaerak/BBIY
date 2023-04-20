@@ -27,5 +27,12 @@ namespace CS5410.Components
             CurrentPosition = (initX, initY);
             Facing = Direction.Stopped; // nothing will be moved unless input
         }
+
+        public override Position Copy()
+        {
+            var newPos = new Position(this.CurrentPosition.Item1, this.CurrentPosition.Item2);
+
+            return newPos;
+        }
     }
 }
