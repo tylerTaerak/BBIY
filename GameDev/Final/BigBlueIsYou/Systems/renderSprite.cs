@@ -14,7 +14,6 @@ namespace CS5410.Systems
         private Dictionary<Components.Objects, (Sprites.AnimatedSprite, Color)> m_objSpriteMap;
         private Dictionary<string, (Sprites.AnimatedSprite, Color)> m_wordSpriteMap;
         private const int m_timer = 500; /* how long to stay in a frame of animation */
-        private const int m_pixelsPerCoord = 24; /* how many pixels per space */
 
         private int m_windowWidth;
         private int m_windowHeight;
