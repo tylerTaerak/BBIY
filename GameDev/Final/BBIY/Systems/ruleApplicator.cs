@@ -31,7 +31,7 @@ namespace CS5410.Systems
                   )
         {
             m_objectNames = new Dictionary<string, Components.Objects>();
-            m_objectNames.Add("bigblue", Components.Objects.BigBlue);
+            m_objectNames.Add("baba", Components.Objects.Baba);
             m_objectNames.Add("wall", Components.Objects.Wall);
             m_objectNames.Add("rock", Components.Objects.Rock);
             m_objectNames.Add("flag", Components.Objects.Flag);

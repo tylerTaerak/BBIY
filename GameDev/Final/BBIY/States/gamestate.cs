@@ -202,7 +202,7 @@ namespace CS5410.States
                     e = Entities.Flag.create(x, y);
                     break;
                 case 'b':
-                    e = Entities.BigBlue.create(x, y);
+                    e = Entities.Baba.create(x, y);
                     break;
                 case 'l':
                     e = Entities.Floor.create(x, y);
@@ -229,7 +229,7 @@ namespace CS5410.States
                     e = Entities.Noun.create("flag", x, y);
                     break;
                 case 'B':
-                    e = Entities.Noun.create("bigblue", x, y);
+                    e = Entities.Noun.create("baba", x, y);
                     break;
                 case 'I':
                     e = Entities.Verb.create("is", x, y);

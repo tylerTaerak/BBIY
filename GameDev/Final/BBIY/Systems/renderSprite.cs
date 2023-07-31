@@ -64,7 +64,7 @@ namespace CS5410.Systems
             m_wordSpriteMap = new Dictionary<string, (Sprites.AnimatedSprite, Color)>();
 
             /* normal sprites */
-            var bb = content.Load<Texture2D>("images/BigBlue");
+            var bb = content.Load<Texture2D>("images/Baba");
             var flag = content.Load<Texture2D>("images/flag");
             var floor = content.Load<Texture2D>("images/floor");
             var grass = content.Load<Texture2D>("images/grass");
@@ -74,7 +74,7 @@ namespace CS5410.Systems
             var wall = content.Load<Texture2D>("images/wall");
             var water = content.Load<Texture2D>("images/water");
 
-            m_objSpriteMap.Add(Components.Objects.BigBlue, (new Sprites.AnimatedSprite(bb, new int[] {m_timer}), Color.White)); // color's built in to this one
+            m_objSpriteMap.Add(Components.Objects.Baba, (new Sprites.AnimatedSprite(bb, new int[] {m_timer}), Color.White)); // color's built in to this one
             m_objSpriteMap.Add(Components.Objects.Flag, (new Sprites.AnimatedSprite(flag, new int[] {m_timer, m_timer, m_timer}), Color.Khaki));
             m_objSpriteMap.Add(Components.Objects.Floor, (new Sprites.AnimatedSprite(floor, new int[] {m_timer, m_timer, m_timer}), Color.SaddleBrown));
             m_objSpriteMap.Add(Components.Objects.Grass, (new Sprites.AnimatedSprite(grass, new int[] {m_timer, m_timer, m_timer}), Color.Green));
@@ -100,7 +100,7 @@ namespace CS5410.Systems
             var wwin = content.Load<Texture2D>("images/word-win");
             var wyou = content.Load<Texture2D>("images/word-you");
 
-            m_wordSpriteMap.Add("bigblue", (new Sprites.AnimatedSprite(wbaba, new int[] {m_timer, m_timer, m_timer}), Color.Blue));
+            m_wordSpriteMap.Add("baba", (new Sprites.AnimatedSprite(wbaba, new int[] {m_timer, m_timer, m_timer}), Color.Blue));
             m_wordSpriteMap.Add("flag", (new Sprites.AnimatedSprite(wflag, new int[] {m_timer, m_timer, m_timer}), Color.Wheat));
             m_wordSpriteMap.Add("is", (new Sprites.AnimatedSprite(wis, new int[] {m_timer, m_timer, m_timer}), Color.Beige));
             m_wordSpriteMap.Add("defeat", (new Sprites.AnimatedSprite(wkill, new int[] {m_timer, m_timer, m_timer}), Color.Red));

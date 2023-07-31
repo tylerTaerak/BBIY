@@ -2,7 +2,7 @@ namespace CS5410.Components
 {
     public enum Objects
     {
-        BigBlue,
+        Baba,
         Wall,
         Rock,
         Flag,

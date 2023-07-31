@@ -27,7 +27,7 @@
 /processorParam:TextureFormat=Compressed
 /build:fonts/Main.spritefont
 
-#begin images/BigBlue.png
+#begin images/Baba.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -37,7 +37,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:images/BigBlue.png
+/build:images/Baba.png
 
 #begin images/flag.png
 /importer:TextureImporter
